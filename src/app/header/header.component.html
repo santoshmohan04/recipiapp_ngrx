@@ -1,0 +1,53 @@
+<nav class="navbar navbar-expand-sm bg-primary navbar-dark">
+  <div class="container-fluid">
+    <a routerLink="/" class="navbar-brand">Recipe Book</a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#collapsibleNavbar"
+      *ngIf="isAuthenticated"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div
+      class="collapse navbar-collapse justify-content-end"
+      id="collapsibleNavbar"
+      *ngIf="isAuthenticated"
+    >
+      <ul class="navbar-nav">
+        <li routerLinkActive="active" class="nav-item">
+          <a class="nav-link" routerLink="/recipes">Recipes</a>
+        </li>
+        <li routerLinkActive="active" class="nav-item">
+          <a class="nav-link" routerLink="/shopping-list">Shopping List</a>
+        </li>
+        <li ngbDropdown class="nav-item" *ngIf="isAuthenticated">
+          <a style="cursor: pointer;" class="nav-link" ngbDropdownToggle
+            >Manage</a>
+          <div ngbDropdownMenu>
+            <button
+              style="cursor: pointer;"
+              ngbDropdownItem
+              (click)="onSaveData()"
+            >
+              Save Data
+            </button>
+            <button
+              style="cursor: pointer;"
+              ngbDropdownItem
+              (click)="onFetchData()"
+            >
+              Fetch Data
+            </button>
+          </div>
+        </li>
+        <li *ngIf="isAuthenticated" class="nav-item">
+          <a style="cursor: pointer;" class="nav-link" (click)="onLogout()"
+            >Logout</a
+          >
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
