@@ -6,6 +6,7 @@ import { Store } from '@ngrx/store';
 
 import { Recipe } from '../recipe.model';
 import * as fromApp from '../../store/app.reducer';
+import * as RecipeActions from '../../recipes/store/recipe.actions';
 
 @Component({
   selector: 'app-recipe-list',
@@ -28,6 +29,9 @@ export class RecipeListComponent implements OnInit, OnDestroy {
       .pipe(map((recipesState) => recipesState.recipes))
       .subscribe((recipes: Recipe[]) => {
         this.recipes = recipes;
+        if (this.recipes.length == 0) {
+          this.store.dispatch(new RecipeActions.FetchRecipes());
+        }
       });
   }
 
