@@ -59,6 +59,7 @@ const handleError = (errorRes: any) => {
 
 @Injectable()
 export class AuthEffects {
+  url = environment.authurl;
   constructor(
     private actions$: Actions,
     private http: HttpClient,
@@ -72,7 +73,7 @@ export class AuthEffects {
       switchMap((signupAction: AuthActions.SignupStart) => {
         return this.http
           .post<AuthResponseData>(
-            'https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=' +
+            this.url + '/signupNewUser?key=' +
             environment.firebaseAPIKey,
             {
               email: signupAction.payload.email,
@@ -107,7 +108,7 @@ export class AuthEffects {
       switchMap((authData: AuthActions.LoginStart) => {
         return this.http
           .post<AuthResponseData>(
-            'https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=' +
+            this.url + '/verifyPassword?key=' +
             environment.firebaseAPIKey,
             {
               email: authData.payload.email,
