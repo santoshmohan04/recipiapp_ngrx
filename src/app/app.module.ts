@@ -24,7 +24,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
     AppRoutingModule,
     StoreModule.forRoot(fromApp.appReducer),
     EffectsModule.forRoot([AuthEffects, RecipeEffects]),
-    StoreDevtoolsModule.instrument({ logOnly: environment.production , connectInZone: true}),
+    StoreDevtoolsModule.instrument({ logOnly: environment.production }),
     StoreRouterConnectingModule.forRoot(),
     SharedModule,
     CoreModule,
