@@ -12,6 +12,7 @@ import * as RecipesActions from '../store/recipe.actions';
   selector: 'app-recipe-edit',
   templateUrl: './recipe-edit.component.html',
   styleUrls: ['./recipe-edit.component.css'],
+  standalone: false
 })
 export class RecipeEditComponent implements OnInit, OnDestroy {
   id: number;

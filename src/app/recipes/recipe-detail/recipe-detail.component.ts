@@ -12,6 +12,7 @@ import * as ShoppingListActions from '../../shopping-list/store/shopping-list.ac
   selector: 'app-recipe-detail',
   templateUrl: './recipe-detail.component.html',
   styleUrls: ['./recipe-detail.component.css'],
+  standalone: false
 })
 export class RecipeDetailComponent implements OnInit {
   recipe: Recipe;
