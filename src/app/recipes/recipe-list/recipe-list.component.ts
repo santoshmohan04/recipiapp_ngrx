@@ -31,7 +31,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
       .subscribe((recipes: Recipe[]) => {
         this.recipes = recipes;
         if (this.recipes.length == 0) {
-          this.store.dispatch(new RecipeActions.FetchRecipes());
+          this.store.dispatch(RecipeActions.fetchRecipes());
         }
       });
   }

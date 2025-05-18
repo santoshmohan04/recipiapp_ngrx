@@ -12,92 +12,83 @@ import { environment } from 'src/environments/environment';
 @Injectable()
 export class RecipeEffects {
   url = environment.apiurl;
+
   constructor(
     private actions$: Actions,
     private http: HttpClient,
     private store: Store<fromApp.AppState>
-  ) { }
+  ) {}
 
-  fetchRecipes = createEffect(() => {
-    return this.actions$.pipe(
-      ofType(RecipesActions.FETCH_RECIPES),
-      switchMap(() => {
-        return this.http.get<Recipe[]>(
-          this.url
+  fetchRecipes$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(RecipesActions.fetchRecipes),
+      switchMap(() =>
+        this.http.get<Recipe[]>(this.url).pipe(
+          map((recipes) =>
+            recipes.map((recipe) => ({
+              ...recipe,
+              ingredients: recipe.ingredients ? recipe.ingredients : [],
+            }))
+          ),
+          map((recipes) => RecipesActions.setRecipes({ recipes }))
+        )
+      )
+    )
+  );
+
+  addRecipe$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(RecipesActions.addRecipe),
+      withLatestFrom(this.store.select('recipes')),
+      switchMap(([{ recipe }, recipesState]) => {
+        const updatedRecipes = [...recipesState.recipes, recipe];
+        return this.http.put(this.url, updatedRecipes).pipe(
+          map(() => RecipesActions.setRecipes({ recipes: updatedRecipes }))
         );
-      }),
-      map((recipes) => {
-        return recipes.map((recipe) => {
-          return {
-            ...recipe,
-            ingredients: recipe.ingredients ? recipe.ingredients : [],
-          };
-        });
-      }),
-      map((recipes) => {
-        return new RecipesActions.SetRecipes(recipes);
       })
     )
-  });
+  );
 
-  addRecipe = createEffect(() => {
-    return this.actions$.pipe(
-      ofType(RecipesActions.ADD_RECIPE),
+  updateRecipe$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(RecipesActions.updateRecipe),
       withLatestFrom(this.store.select('recipes')),
-      switchMap(([actionData, recipesState]) => {
-        const updatedRecipes = [...recipesState.recipes, actionData.payload];
-  
-        return this.http.put(this.url, updatedRecipes).pipe(
-          map(() => new RecipesActions.SetRecipes(updatedRecipes))
-        );
-      })
-    );
-  });  
-
-  updateRecipe = createEffect(() => {
-    return this.actions$.pipe(
-      ofType(RecipesActions.UPDATE_RECIPE),
-      withLatestFrom(this.store.select('recipes')),
-      switchMap(([actionData, recipesState]) => {
+      switchMap(([{ index, newRecipe }, recipesState]) => {
         const updatedRecipe = {
-          ...recipesState.recipes[actionData.payload.index],
-          ...actionData.payload.newRecipe,
+          ...recipesState.recipes[index],
+          ...newRecipe,
         };
-  
         const updatedRecipes = [...recipesState.recipes];
-        updatedRecipes[actionData.payload.index] = updatedRecipe;
-  
+        updatedRecipes[index] = updatedRecipe;
+
         return this.http.put(this.url, updatedRecipes).pipe(
-          map(() => new RecipesActions.SetRecipes(updatedRecipes))
-        );
-      })
-    );
-  });  
-
-  deleteRecipe = createEffect(() => {
-    return this.actions$.pipe(
-      ofType(RecipesActions.DELETE_RECIPE),
-      withLatestFrom(this.store.select('recipes')),
-      switchMap(([actionData, recipesState]) => {
-        const updatedRecipes = recipesState.recipes.filter((_, index) => index !== actionData.payload);
-        return this.http.put(this.url, updatedRecipes).pipe(
-          map(() => new RecipesActions.SetRecipes(updatedRecipes))
-        );
-      })
-    );
-  });
-
-
-  storeRecipes = createEffect(() => {
-    return this.actions$.pipe(
-      ofType(RecipesActions.STORE_RECIPES),
-      withLatestFrom(this.store.select('recipes')),
-      switchMap(([actionData, recipesState]) => {
-        return this.http.put(
-          this.url,
-          recipesState.recipes
+          map(() => RecipesActions.setRecipes({ recipes: updatedRecipes }))
         );
       })
     )
-  }, { dispatch: false });
+  );
+
+  deleteRecipe$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(RecipesActions.deleteRecipe),
+      withLatestFrom(this.store.select('recipes')),
+      switchMap(([{ index }, recipesState]) => {
+        const updatedRecipes = recipesState.recipes.filter((_, i) => i !== index);
+        return this.http.put(this.url, updatedRecipes).pipe(
+          map(() => RecipesActions.setRecipes({ recipes: updatedRecipes }))
+        );
+      })
+    )
+  );
+
+  storeRecipes$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(RecipesActions.storeRecipes),
+      withLatestFrom(this.store.select('recipes')),
+      switchMap(([_, recipesState]) => {
+        return this.http.put(this.url, recipesState.recipes);
+      })
+    ),
+    { dispatch: false }
+  );
 }
