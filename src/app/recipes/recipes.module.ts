@@ -11,6 +11,7 @@ import { RecipeEditComponent } from './recipe-edit/recipe-edit.component';
 import { RecipesRoutingModule } from './recipes-routing.module';
 import { SharedModule } from '../shared/shared.module';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { HeaderComponent } from '../header/header.component';
 
 @NgModule({
   declarations: [
@@ -19,14 +20,15 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
     RecipeDetailComponent,
     RecipeItemComponent,
     RecipeStartComponent,
-    RecipeEditComponent
+    RecipeEditComponent,
+    HeaderComponent,
   ],
   imports: [
     RouterModule,
     ReactiveFormsModule,
     RecipesRoutingModule,
     SharedModule,
-    NgbModule
-  ]
+    NgbModule,
+  ],
 })
 export class RecipesModule {}
