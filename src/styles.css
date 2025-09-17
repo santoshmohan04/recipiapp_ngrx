@@ -4,9 +4,3 @@ body {
   height: 100%;
   margin: 0;
 }
-
-body {
-  display: flex;
-  justify-content: center; /* horizontal centering */
-  align-items: center; /* vertical centering */
-}

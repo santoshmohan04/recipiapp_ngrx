@@ -1,17 +1,32 @@
-.container {
+.auth-container {
   display: flex;
-  flex-direction: row-reverse;
+  justify-content: center; /* horizontal centering */
+  align-items: center; /* vertical centering */
+  flex-direction: row;
   font-family: Arial, sans-serif;
   border: 1px solid #ccc;
   border-radius: 2px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   padding: 0px;
+  position: absolute; /* Ensure the container is positioned relative to the viewport */
+  top: 50%; /* Move to the vertical center */
+  left: 50%; /* Move to the horizontal center */
+  transform: translate(
+    -50%,
+    -50%
+  ); /* Adjust for the container's own dimensions */
+  width: 80%; /* Set a width for the container */
+  max-width: 1200px; /* Limit the maximum width */
+  height: auto; /* Ensure the container height adjusts dynamically */
 }
 
 .login-box {
   flex: 1;
   padding: 60px;
   background: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .welcome-box {
@@ -24,6 +39,7 @@
   justify-content: center;
   align-items: center;
   text-align: center;
+  height: 100%; /* Ensure the welcome box spans the full height of the container */
 }
 
 form {
