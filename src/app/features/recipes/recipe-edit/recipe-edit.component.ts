@@ -38,7 +38,10 @@ export class RecipeEditComponent {
     name: ['', Validators.required],
     imagePath: ['', Validators.required],
     description: ['', Validators.required],
-    ingredients: this.fb.array([])
+    rating: [0, [Validators.min(0), Validators.max(5)]],
+    cookingTime: [30, [Validators.required, Validators.min(1)]],
+    ingredients: this.fb.array([]),
+    instructions: this.fb.array([])
   });
 
   constructor() {
@@ -66,18 +69,29 @@ export class RecipeEditComponent {
     let recipeName = '';
     let recipeImagePath = '';
     let recipeDescription = '';
+    let recipeRating = 0;
+    let recipeCookingTime = 30;
     let recipeIngredients: Ingredient[] = [];
+    let recipeInstructions: string[] = [];
 
     if (recipe) {
       recipeName = recipe.name;
       recipeImagePath = recipe.imagePath;
       recipeDescription = recipe.description;
+      recipeRating = recipe.rating || 0;
+      recipeCookingTime = recipe.cookingTime || 30;
       recipeIngredients = recipe.ingredients;
+      recipeInstructions = recipe.instructions || [];
     }
 
     // Clear existing ingredients
     while (this.ingredients.length) {
       this.ingredients.removeAt(0);
+    }
+    
+    // Clear existing instructions
+    while (this.instructions.length) {
+      this.instructions.removeAt(0);
     }
     
     // Add ingredient FormGroups
@@ -89,16 +103,29 @@ export class RecipeEditComponent {
         }));
       });
     }
+    
+    // Add instruction FormControls
+    if (recipeInstructions.length > 0) {
+      recipeInstructions.forEach(instruction => {
+        this.instructions.push(this.fb.control(instruction, Validators.required));
+      });
+    }
 
     this.recipeForm.patchValue({
       name: recipeName,
       imagePath: recipeImagePath,
-      description: recipeDescription
+      description: recipeDescription,
+      rating: recipeRating,
+      cookingTime: recipeCookingTime
     });
   }
 
   get ingredients() {
     return this.recipeForm.get('ingredients') as FormArray;
+  }
+  
+  get instructions() {
+    return this.recipeForm.get('instructions') as FormArray;
   }
 
   onAddIngredient() {
@@ -111,12 +138,21 @@ export class RecipeEditComponent {
   onDeleteIngredient(index: number) {
     this.ingredients.removeAt(index);
   }
+  
+  onAddInstruction() {
+    this.instructions.push(this.fb.control('', Validators.required));
+  }
+  
+  onDeleteInstruction(index: number) {
+    this.instructions.removeAt(index);
+  }
 
   onSubmit() {
     if (!this.recipeForm.valid) return;
 
     const formValue = this.recipeForm.value;
     const ingredients: Ingredient[] = [];
+    const instructions: string[] = [];
     
     if (formValue.ingredients) {
       formValue.ingredients.forEach((ing: any) => {
@@ -125,12 +161,23 @@ export class RecipeEditComponent {
         }
       });
     }
+    
+    if (formValue.instructions) {
+      formValue.instructions.forEach((instruction: any) => {
+        if (instruction && instruction.trim()) {
+          instructions.push(instruction.trim());
+        }
+      });
+    }
 
     const recipe = new Recipe(
       formValue.name!,
       formValue.description!,
       formValue.imagePath!,
-      ingredients
+      ingredients,
+      formValue.rating || 0,
+      formValue.cookingTime || 30,
+      instructions
     );
 
     if (this.editMode()) {

@@ -1,23 +1,4 @@
 .recipes-container {
   padding: 0;
-}
-
-.recipes-layout {
-  display: grid;
-  grid-template-columns: 400px 1fr;
-  gap: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-@media (max-width: 768px) {
-  .recipes-layout {
-    grid-template-columns: 1fr;
-  }
-  .recipe-list-section {
-    order: 2;
-  }
-  .recipe-detail-section {
-    order: 1;
-  }
+  width: 100%;
 }

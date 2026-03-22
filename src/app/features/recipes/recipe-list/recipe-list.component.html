@@ -9,20 +9,61 @@
   
   @if (recipeState$ | async; as recipeState) {
     @if (recipeState.recipes.length > 0) {
-      <mat-nav-list>
+      <div class="recipe-grid">
         @for (recipe of recipeState.recipes; track $index) {
-          <a mat-list-item [routerLink]="['/recipes', $index]" routerLinkActive="active">
-            <img matListItemAvatar [src]="recipe.imagePath" [alt]="recipe.name" />
-            <span matListItemTitle>{{ recipe.name }}</span>
-            <span matListItemLine>{{ recipe.description }}</span>
-          </a>
+          <mat-card class="recipe-card" [routerLink]="['/recipes', $index]">
+            <div class="card-image-container">
+              <img mat-card-image [src]="recipe.imagePath" [alt]="recipe.name" />
+              <div class="image-overlay">
+                <mat-icon>visibility</mat-icon>
+              </div>
+            </div>
+            
+            <mat-card-header>
+              <mat-card-title>{{ recipe.name }}</mat-card-title>
+              <mat-card-subtitle>{{ recipe.description }}</mat-card-subtitle>
+            </mat-card-header>
+            
+            <mat-card-content>
+              <div class="recipe-meta">
+                <div class="rating">
+                  @for (star of getRatingArray(recipe.rating || 0); track $index) {
+                    <mat-icon [class.filled]="star === 1">
+                      {{ star === 1 ? 'star' : 'star_border' }}
+                    </mat-icon>
+                  }
+                  <span class="rating-text">{{ recipe.rating || 0 }}/5</span>
+                </div>
+                
+                <mat-chip-set class="time-chip">
+                  <mat-chip>
+                    <mat-icon matChipAvatar>schedule</mat-icon>
+                    {{ recipe.cookingTime || 30 }} min
+                  </mat-chip>
+                </mat-chip-set>
+              </div>
+              
+              <div class="ingredients-count">
+                <mat-icon>restaurant</mat-icon>
+                <span>{{ recipe.ingredients.length }} ingredients</span>
+              </div>
+            </mat-card-content>
+            
+            <mat-card-actions>
+              <button mat-button color="primary">
+                <mat-icon>visibility</mat-icon>
+                View Recipe
+              </button>
+            </mat-card-actions>
+          </mat-card>
         }
-      </mat-nav-list>
+      </div>
     } @else {
       <mat-card class="empty-state">
         <mat-card-content>
           <mat-icon>restaurant_menu</mat-icon>
-          <p>No recipes yet. Create your first recipe!</p>
+          <h3>No recipes yet</h3>
+          <p>Create your first recipe!</p>
         </mat-card-content>
       </mat-card>
     }

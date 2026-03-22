@@ -7,6 +7,16 @@
   width: 100%;
 }
 
+.form-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.half-width {
+  flex: 1;
+}
+
 form {
   display: flex;
   flex-direction: column;
@@ -42,6 +52,35 @@ h3 {
 }
 
 .add-ingredient {
+  margin-bottom: 1rem;
+}
+
+.instruction-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.instruction-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  margin-top: 8px;
+  background-color: #3f51b5;
+  color: white;
+  border-radius: 50%;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.instruction-field {
+  flex: 1;
+}
+
+.add-instruction {
   margin-bottom: 1rem;
 }
 

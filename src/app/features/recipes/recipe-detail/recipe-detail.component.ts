@@ -5,6 +5,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatListModule } from '@angular/material/list';
+import { MatDividerModule } from '@angular/material/divider';
 import { Store } from '@ngrx/store';
 import * as RecipeActions from '../../../store/recipes/recipe.actions';
 import * as ShoppingListActions from '../../../store/shopping-list/shopping-list.actions';
@@ -19,7 +22,10 @@ import { Recipe } from '../models/recipe.model';
     MatButtonModule,
     MatMenuModule,
     MatIconModule,
-    MatChipsModule
+    MatChipsModule,
+    MatTabsModule,
+    MatListModule,
+    MatDividerModule
   ],
   templateUrl: './recipe-detail.component.html',
   styleUrls: ['./recipe-detail.component.scss']
@@ -43,6 +49,10 @@ export class RecipeDetailComponent {
         });
       });
     });
+  }
+  
+  getRatingArray(rating: number): number[] {
+    return Array(5).fill(0).map((_, i) => i < Math.floor(rating) ? 1 : 0);
   }
 
   onAddToShoppingList() {
