@@ -3,9 +3,11 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { Store } from '@ngrx/store';
 import * as ShoppingListActions from '../../../store/shopping-list/shopping-list.actions';
 import { Ingredient } from '../../../shared/models/ingredient.model';
+import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
   selector: 'app-shopping-edit',
@@ -14,7 +16,8 @@ import { Ingredient } from '../../../shared/models/ingredient.model';
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
-    MatButtonModule
+    MatButtonModule,
+    MatIconModule
   ],
   templateUrl: './shopping-edit.component.html',
   styleUrls: ['./shopping-edit.component.scss']
@@ -22,6 +25,7 @@ import { Ingredient } from '../../../shared/models/ingredient.model';
 export class ShoppingEditComponent {
   private fb = inject(FormBuilder);
   private store = inject(Store);
+  private notificationService = inject(NotificationService);
   
   editMode = signal(false);
   editedItemIndex = signal(-1);
@@ -62,8 +66,10 @@ export class ShoppingEditComponent {
           ingredient 
         })
       );
+      this.notificationService.showSuccess(`${name} updated successfully!`);
     } else {
       this.store.dispatch(ShoppingListActions.addIngredient({ ingredient }));
+      this.notificationService.showSuccess(`${name} added to shopping list!`);
     }
 
     this.onClear();

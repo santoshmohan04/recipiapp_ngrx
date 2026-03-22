@@ -33,3 +33,6 @@ export const startEdit = createAction(
 
 // Stop edit
 export const stopEdit = createAction('[Shopping List] Stop Edit');
+
+// Clear all ingredients
+export const clearIngredients = createAction('[Shopping List] Clear All Ingredients');

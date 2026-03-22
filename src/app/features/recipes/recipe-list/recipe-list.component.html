@@ -7,15 +7,127 @@
     </button>
   </div>
   
-  @if (recipeState$ | async; as recipeState) {
-    @if (recipeState.recipes.length > 0) {
-      <div class="recipe-grid">
-        @for (recipe of recipeState.recipes; track $index) {
-          <mat-card class="recipe-card" [routerLink]="['/recipes', $index]">
+  <!-- Filters and Controls Section -->
+  <mat-card class="controls-card">
+    <mat-card-content>
+      <div class="controls-row">
+        <!-- Search -->
+        <mat-form-field class="search-field" appearance="outline">
+          <mat-label>Search recipes</mat-label>
+          <input 
+            matInput 
+            [value]="searchTerm()" 
+            (input)="onSearchChange($any($event.target).value)"
+            placeholder="Search by name or description">
+          <mat-icon matPrefix>search</mat-icon>
+          @if (searchTerm()) {
+            <button matSuffix mat-icon-button (click)="onSearchChange('')">
+              <mat-icon>clear</mat-icon>
+            </button>
+          }
+        </mat-form-field>
+        
+        <!-- Difficulty Filter -->
+        <mat-form-field appearance="outline">
+          <mat-label>Difficulty</mat-label>
+          <mat-select [value]="selectedDifficulty()" (valueChange)="onDifficultyChange($event)">
+            @for (difficulty of difficultyOptions; track difficulty) {
+              <mat-option [value]="difficulty">
+                {{ difficulty === 'all' ? 'All Difficulties' : difficulty }}
+              </mat-option>
+            }
+          </mat-select>
+          <mat-icon matPrefix>tune</mat-icon>
+        </mat-form-field>
+        
+        <!-- Rating Filter -->
+        <mat-form-field appearance="outline">
+          <mat-label>Min Rating</mat-label>
+          <mat-select [value]="minRating()" (valueChange)="onRatingChange($event)">
+            <mat-option [value]="0">All Ratings</mat-option>
+            <mat-option [value]="3">3+ Stars</mat-option>
+            <mat-option [value]="4">4+ Stars</mat-option>
+            <mat-option [value]="5">5 Stars</mat-option>
+          </mat-select>
+          <mat-icon matPrefix>star</mat-icon>
+        </mat-form-field>
+        
+        <!-- Sort By -->
+        <mat-form-field appearance="outline">
+          <mat-label>Sort By</mat-label>
+          <mat-select [value]="sortBy()" (valueChange)="onSortChange($event)">
+            @for (option of sortOptions; track option.value) {
+              <mat-option [value]="option.value">{{ option.label }}</mat-option>
+            }
+          </mat-select>
+          <mat-icon matPrefix>sort</mat-icon>
+        </mat-form-field>
+        
+        <!-- View Mode Toggle -->
+        <mat-button-toggle-group [value]="viewMode()" (change)="onViewModeChange($event.value)">
+          <mat-button-toggle value="grid">
+            <mat-icon>grid_view</mat-icon>
+          </mat-button-toggle>
+          <mat-button-toggle value="list">
+            <mat-icon>view_list</mat-icon>
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+        
+        <!-- Clear Filters -->
+        @if (hasFilters()) {
+          <button mat-stroked-button color="warn" (click)="clearFilters()">
+            <mat-icon>clear_all</mat-icon>
+            Clear Filters
+          </button>
+        }
+      </div>
+      
+      <!-- Statistics Bar -->
+      <div class="stats-bar">
+        <mat-chip-set>
+          <mat-chip highlighted>
+            <mat-icon matChipAvatar>restaurant_menu</mat-icon>
+            {{ recipeCount() }} of {{ totalRecipes() }} recipes
+          </mat-chip>
+          @if (recipeCount() > 0) {
+            <mat-chip>
+              <mat-icon matChipAvatar>star</mat-icon>
+              Avg Rating: {{ averageRating() }}
+            </mat-chip>
+          }
+          @if (hasFilters()) {
+            <mat-chip color="accent" highlighted>
+              <mat-icon matChipAvatar>filter_alt</mat-icon>
+              Filters Active
+            </mat-chip>
+          }
+        </mat-chip-set>
+      </div>
+    </mat-card-content>
+  </mat-card>
+  
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+      <p>Loading recipes...</p>
+    </div>
+  }
+  
+  <!-- Recipe Grid/List -->
+  @if (!loading()) {
+    @if (filteredRecipes().length > 0) {
+      <div [class]="viewMode() === 'grid' ? 'recipe-grid' : 'recipe-list-view'">
+        @for (recipe of filteredRecipes(); track recipe.id || $index) {
+          <mat-card class="recipe-card" [routerLink]="['/recipes', recipe.id || $index]">
             <div class="card-image-container">
               <img mat-card-image [src]="recipe.imagePath" [alt]="recipe.name" />
               <div class="image-overlay">
                 <mat-icon>visibility</mat-icon>
+              </div>
+              <!-- Difficulty Badge -->
+              <div class="difficulty-badge" [attr.data-difficulty]="recipe.difficulty">
+                {{ recipe.difficulty }}
               </div>
             </div>
             
@@ -62,8 +174,20 @@
       <mat-card class="empty-state">
         <mat-card-content>
           <mat-icon>restaurant_menu</mat-icon>
-          <h3>No recipes yet</h3>
-          <p>Create your first recipe!</p>
+          @if (hasFilters()) {
+            <h3>No recipes match your filters</h3>
+            <p>Try adjusting your search criteria</p>
+            <button mat-raised-button color="primary" (click)="clearFilters()">
+              Clear Filters
+            </button>
+          } @else {
+            <h3>No recipes yet</h3>
+            <p>Create your first recipe!</p>
+            <button mat-raised-button color="primary" routerLink="/recipes/new">
+              <mat-icon>add</mat-icon>
+              Create Recipe
+            </button>
+          }
         </mat-card-content>
       </mat-card>
     }

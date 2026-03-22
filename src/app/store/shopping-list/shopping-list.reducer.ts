@@ -55,5 +55,12 @@ export const shoppingListReducer = createReducer(
     ...state,
     editedIngredient: null,
     editedIngredientIndex: -1,
+  })),
+  
+  on(ShoppingListActions.clearIngredients, (state) => ({
+    ...state,
+    ingredients: [],
+    editedIngredient: null,
+    editedIngredientIndex: -1,
   }))
 );

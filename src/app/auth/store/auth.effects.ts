@@ -8,6 +8,7 @@ import { HttpClient } from '@angular/common/http';
 import * as AuthActions from './auth.actions';
 import { AuthService } from '../auth.service';
 import { User } from '../user.model';
+import { NotificationService } from '../../core/services/notification.service';
 
 export interface AuthResponseData {
   kind: string;
@@ -25,7 +26,8 @@ export class AuthEffects {
     private actions$: Actions,
     private http: HttpClient,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private notificationService: NotificationService
   ) {}
 
   private handleAuthentication(
@@ -119,6 +121,7 @@ export class AuthEffects {
         ofType(AuthActions.authenticateSuccess),
         tap((action) => {
           if (action.redirect) {
+            this.notificationService.showSuccess('Login successful! Welcome back.');
             this.router.navigate(['/']);
           }
         })
@@ -175,7 +178,19 @@ export class AuthEffects {
         tap(() => {
           this.authService.clearLogoutTimer();
           localStorage.removeItem('userData');
+          this.notificationService.showInfo('You have been logged out.');
           this.router.navigate(['/auth']);
+        })
+      ),
+    { dispatch: false }
+  );
+
+  authFail$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(AuthActions.authenticateFail),
+        tap((action) => {
+          this.notificationService.showError(action.errorMessage);
         })
       ),
     { dispatch: false }

@@ -6,6 +6,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSelectModule } from '@angular/material/select';
+import { MatChipsModule } from '@angular/material/chips';
+import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Store } from '@ngrx/store';
 import * as RecipeActions from '../../../store/recipes/recipe.actions';
 import { Recipe } from '../models/recipe.model';
@@ -20,7 +23,10 @@ import { Ingredient } from '../../../shared/models/ingredient.model';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    MatSelectModule,
+    MatChipsModule,
+    DragDropModule
   ],
   templateUrl: './recipe-edit.component.html',
   styleUrls: ['./recipe-edit.component.scss']
@@ -32,7 +38,10 @@ export class RecipeEditComponent {
   private store = inject(Store);
   
   editMode = signal(false);
+  recipeId = signal<string | number | null>(null);
   recipeIndex = signal<number>(-1);
+  
+  difficultyLevels = ['Easy', 'Medium', 'Hard'];
   
   recipeForm = this.fb.group({
     name: ['', Validators.required],
@@ -40,6 +49,8 @@ export class RecipeEditComponent {
     description: ['', Validators.required],
     rating: [0, [Validators.min(0), Validators.max(5)]],
     cookingTime: [30, [Validators.required, Validators.min(1)]],
+    difficulty: ['Medium', Validators.required],
+    servings: [4, [Validators.required, Validators.min(1)]],
     ingredients: this.fb.array([]),
     instructions: this.fb.array([])
   });
@@ -51,14 +62,17 @@ export class RecipeEditComponent {
         this.editMode.set(id != null && id !== 'new');
         
         if (this.editMode()) {
+          this.recipeId.set(id);
           this.recipeIndex.set(+id);
           this.store.select('recipes').subscribe(state => {
-            const recipe = state.recipes[+id];
+            // Find recipe by id in the entities
+            const recipe = Object.values(state.entities).find((r: any) => r?.id === id);
             if (recipe) {
-              this.initForm(recipe);
+              this.initForm(recipe as Recipe);
             }
           });
         } else {
+          this.recipeId.set(null);
           this.initForm();
         }
       });
@@ -71,6 +85,8 @@ export class RecipeEditComponent {
     let recipeDescription = '';
     let recipeRating = 0;
     let recipeCookingTime = 30;
+    let recipeDifficulty = 'Medium';
+    let recipeServings = 4;
     let recipeIngredients: Ingredient[] = [];
     let recipeInstructions: string[] = [];
 
@@ -80,6 +96,8 @@ export class RecipeEditComponent {
       recipeDescription = recipe.description;
       recipeRating = recipe.rating || 0;
       recipeCookingTime = recipe.cookingTime || 30;
+      recipeDifficulty = recipe.difficulty || 'Medium';
+      recipeServings = recipe.servings || 4;
       recipeIngredients = recipe.ingredients;
       recipeInstructions = recipe.instructions || [];
     }
@@ -99,7 +117,7 @@ export class RecipeEditComponent {
       recipeIngredients.forEach(ingredient => {
         this.ingredients.push(this.fb.group({
           name: [ingredient.name, Validators.required],
-          amount: [ingredient.amount, [Validators.required, Validators.pattern(/^[1-9]+[0-9]*$/)]]
+          amount: [ingredient.amount, Validators.required]
         }));
       });
     }
@@ -116,7 +134,9 @@ export class RecipeEditComponent {
       imagePath: recipeImagePath,
       description: recipeDescription,
       rating: recipeRating,
-      cookingTime: recipeCookingTime
+      cookingTime: recipeCookingTime,
+      difficulty: recipeDifficulty,
+      servings: recipeServings
     });
   }
 
@@ -131,12 +151,18 @@ export class RecipeEditComponent {
   onAddIngredient() {
     this.ingredients.push(this.fb.group({
       name: ['', Validators.required],
-      amount: ['', [Validators.required, Validators.pattern(/^[1-9]+[0-9]*$/)]]
+      amount: ['', Validators.required]
     }));
   }
 
   onDeleteIngredient(index: number) {
     this.ingredients.removeAt(index);
+  }
+  
+  dropIngredient(event: CdkDragDrop<any[]>) {
+    moveItemInArray(this.ingredients.controls, event.previousIndex, event.currentIndex);
+    moveItemInArray(this.ingredients.value, event.previousIndex, event.currentIndex);
+    this.ingredients.updateValueAndValidity();
   }
   
   onAddInstruction() {
@@ -177,13 +203,16 @@ export class RecipeEditComponent {
       ingredients,
       formValue.rating || 0,
       formValue.cookingTime || 30,
-      instructions
+      instructions,
+      formValue.difficulty || 'Medium',
+      formValue.servings || 4,
+      this.recipeId() || undefined
     );
 
-    if (this.editMode()) {
+    if (this.editMode() && this.recipeId()) {
       this.store.dispatch(
         RecipeActions.updateRecipe({ 
-          index: this.recipeIndex(), 
+          id: this.recipeId()!, 
           recipe 
         })
       );

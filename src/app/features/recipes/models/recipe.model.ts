@@ -8,6 +8,9 @@ export class Recipe {
     public ingredients: Ingredient[],
     public rating: number = 0,
     public cookingTime: number = 30,
-    public instructions: string[] = []
+    public instructions: string[] = [],
+    public difficulty: string = 'Medium',
+    public servings: number = 4,
+    public id?: string | number
   ) {}
 }
