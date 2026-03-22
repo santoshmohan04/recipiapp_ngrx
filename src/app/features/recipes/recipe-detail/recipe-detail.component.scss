@@ -1,6 +1,50 @@
+// Breakpoint Variables
+$mobile-max: 767.98px;
+$tablet-min: 768px;
+$tablet-max: 1199.98px;
+$desktop-min: 1200px;
+
 .recipe-detail-container {
   max-width: 1000px;
   margin: 0 auto;
+  padding: 24px;
+
+  @media (max-width: $tablet-max) {
+    padding: 16px;
+  }
+
+  @media (max-width: $mobile-max) {
+    padding: 12px;
+  }
+
+  &.mobile-layout {
+    .recipe-hero {
+      height: 250px;
+      border-radius: 4px;
+    }
+
+    .hero-overlay {
+      padding: 1rem;
+    }
+
+    .recipe-title {
+      font-size: 1.75rem;
+    }
+
+    .recipe-description {
+      font-size: 0.95rem;
+    }
+  }
+
+  &.tablet-layout {
+    .recipe-hero {
+      height: 320px;
+    }
+
+    .recipe-title {
+      font-size: 2rem;
+    }
+  }
 }
 
 /* Hero Section */
@@ -58,6 +102,16 @@
   padding: 1rem 0;
   flex-wrap: wrap;
   gap: 1rem;
+
+  @media (max-width: $mobile-max) {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.5rem 0;
+
+    .vertical-divider {
+      display: none;
+    }
+  }
 }
 
 .meta-item {
@@ -129,11 +183,32 @@
   gap: 1rem;
   margin-bottom: 1.5rem;
   flex-wrap: wrap;
+
+  @media (max-width: $mobile-max) {
+    gap: 0.75rem;
+    
+    &.mobile-stack {
+      flex-direction: column;
+
+      button {
+        width: 100%;
+        min-width: auto;
+      }
+    }
+  }
 }
 
 .action-buttons button {
   flex: 1;
   min-width: 180px;
+
+  @media (max-width: $tablet-max) {
+    min-width: 150px;
+  }
+
+  @media (max-width: $mobile-max) {
+    min-width: auto;
+  }
 }
 
 .action-buttons button mat-icon {

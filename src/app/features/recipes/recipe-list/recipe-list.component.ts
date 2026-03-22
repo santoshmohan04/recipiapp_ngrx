@@ -14,6 +14,7 @@ import { Store } from '@ngrx/store';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Recipe } from '../models/recipe.model';
 import { selectAllRecipes, selectRecipesLoading } from '../../../store/recipes/recipe.selectors';
+import { ResponsiveLayoutService } from '../../../core/services/responsive-layout.service';
 
 type SortOption = 'name' | 'rating' | 'cookingTime';
 type ViewMode = 'grid' | 'list';
@@ -39,10 +40,18 @@ type ViewMode = 'grid' | 'list';
 })
 export class RecipeListComponent {
   private store = inject(Store);
+  private responsiveLayout = inject(ResponsiveLayoutService);
   
   // Convert observables to signals for reactive composition
   private allRecipes = toSignal(this.store.select(selectAllRecipes), { initialValue: [] });
   loading = toSignal(this.store.select(selectRecipesLoading), { initialValue: false });
+  
+  // Responsive layout signals
+  deviceType = this.responsiveLayout.deviceType;
+  layoutConfig = this.responsiveLayout.layoutConfig;
+  isMobile = this.responsiveLayout.isMobile;
+  isTablet = this.responsiveLayout.isTablet;
+  isDesktop = this.responsiveLayout.isDesktop;
   
   // LOCAL UI STATE - Using Signals
   

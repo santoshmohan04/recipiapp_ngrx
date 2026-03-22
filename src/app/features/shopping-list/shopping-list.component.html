@@ -1,4 +1,4 @@
-<div class="shopping-list-container">
+<div class="shopping-list-container" [class.mobile-layout]="isMobile()">
   <!-- Add New Ingredient Section -->
   <mat-card class="add-ingredient-card">
     <mat-card-header>
@@ -55,7 +55,11 @@
                 color="warn" 
                 (click)="clearChecked()">
                 <mat-icon>delete_sweep</mat-icon>
-                Remove Completed ({{ checkedCount() }})
+                @if (!isMobile()) {
+                  <span>Remove Completed ({{ checkedCount() }})</span>
+                } @else {
+                  <span>Remove ({{ checkedCount() }})</span>
+                }
               </button>
             }
             

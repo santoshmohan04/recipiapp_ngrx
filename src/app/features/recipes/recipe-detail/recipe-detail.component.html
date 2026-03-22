@@ -1,4 +1,4 @@
-<div class="recipe-detail-container">
+<div class="recipe-detail-container" [class.mobile-layout]="isMobile()" [class.tablet-layout]="isTablet()">
   @if (recipe$ | async; as recipe) {
     <!-- Hero Section with Image and Title -->
     <div class="recipe-hero">
@@ -54,18 +54,30 @@
     </mat-card>
     
     <!-- Action Buttons -->
-    <div class="action-buttons">
+    <div class="action-buttons" [class.mobile-stack]="isMobile()">
       <button mat-raised-button color="primary" (click)="onAddToShoppingList(recipe)">
         <mat-icon>shopping_cart</mat-icon>
-        Add to Shopping List
+        @if (!isMobile()) {
+          <span>Add to Shopping List</span>
+        } @else {
+          <span>Add to Cart</span>
+        }
       </button>
       <button mat-raised-button color="accent" (click)="onEditRecipe()">
         <mat-icon>edit</mat-icon>
-        Edit Recipe
+        @if (!isMobile()) {
+          <span>Edit Recipe</span>
+        } @else {
+          <span>Edit</span>
+        }
       </button>
       <button mat-raised-button color="warn" (click)="onDeleteRecipe()">
         <mat-icon>delete</mat-icon>
-        Delete Recipe
+        @if (!isMobile()) {
+          <span>Delete Recipe</span>
+        } @else {
+          <span>Delete</span>
+        }
       </button>
     </div>
     

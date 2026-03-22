@@ -10,7 +10,7 @@
   <!-- Filters and Controls Section -->
   <mat-card class="controls-card">
     <mat-card-content>
-      <div class="controls-row">
+      <div class="controls-row" [class.mobile-layout]="isMobile()">
         <!-- Search -->
         <mat-form-field class="search-field" appearance="outline">
           <mat-label>Search recipes</mat-label>
@@ -27,33 +27,35 @@
           }
         </mat-form-field>
         
-        <!-- Difficulty Filter -->
-        <mat-form-field appearance="outline">
-          <mat-label>Difficulty</mat-label>
-          <mat-select [value]="selectedDifficulty()" (valueChange)="onDifficultyChange($event)">
-            @for (difficulty of difficultyOptions; track difficulty) {
-              <mat-option [value]="difficulty">
-                {{ difficulty === 'all' ? 'All Difficulties' : difficulty }}
-              </mat-option>
-            }
-          </mat-select>
-          <mat-icon matPrefix>tune</mat-icon>
-        </mat-form-field>
-        
-        <!-- Rating Filter -->
-        <mat-form-field appearance="outline">
-          <mat-label>Min Rating</mat-label>
-          <mat-select [value]="minRating()" (valueChange)="onRatingChange($event)">
-            <mat-option [value]="0">All Ratings</mat-option>
-            <mat-option [value]="3">3+ Stars</mat-option>
-            <mat-option [value]="4">4+ Stars</mat-option>
-            <mat-option [value]="5">5 Stars</mat-option>
-          </mat-select>
-          <mat-icon matPrefix>star</mat-icon>
-        </mat-form-field>
+        @if (!isMobile()) {
+          <!-- Difficulty Filter -->
+          <mat-form-field appearance="outline">
+            <mat-label>Difficulty</mat-label>
+            <mat-select [value]="selectedDifficulty()" (valueChange)="onDifficultyChange($event)">
+              @for (difficulty of difficultyOptions; track difficulty) {
+                <mat-option [value]="difficulty">
+                  {{ difficulty === 'all' ? 'All Difficulties' : difficulty }}
+                </mat-option>
+              }
+            </mat-select>
+            <mat-icon matPrefix>tune</mat-icon>
+          </mat-form-field>
+          
+          <!-- Rating Filter -->
+          <mat-form-field appearance="outline">
+            <mat-label>Min Rating</mat-label>
+            <mat-select [value]="minRating()" (valueChange)="onRatingChange($event)">
+              <mat-option [value]="0">All Ratings</mat-option>
+              <mat-option [value]="3">3+ Stars</mat-option>
+              <mat-option [value]="4">4+ Stars</mat-option>
+              <mat-option [value]="5">5 Stars</mat-option>
+            </mat-select>
+            <mat-icon matPrefix>star</mat-icon>
+          </mat-form-field>
+        }
         
         <!-- Sort By -->
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" [class.full-width-mobile]="isMobile()">
           <mat-label>Sort By</mat-label>
           <mat-select [value]="sortBy()" (valueChange)="onSortChange($event)">
             @for (option of sortOptions; track option.value) {
@@ -64,23 +66,55 @@
         </mat-form-field>
         
         <!-- View Mode Toggle -->
-        <mat-button-toggle-group [value]="viewMode()" (change)="onViewModeChange($event.value)">
-          <mat-button-toggle value="grid">
-            <mat-icon>grid_view</mat-icon>
-          </mat-button-toggle>
-          <mat-button-toggle value="list">
-            <mat-icon>view_list</mat-icon>
-          </mat-button-toggle>
-        </mat-button-toggle-group>
+        @if (!isMobile()) {
+          <mat-button-toggle-group [value]="viewMode()" (change)="onViewModeChange($event.value)">
+            <mat-button-toggle value="grid">
+              <mat-icon>grid_view</mat-icon>
+            </mat-button-toggle>
+            <mat-button-toggle value="list">
+              <mat-icon>view_list</mat-icon>
+            </mat-button-toggle>
+          </mat-button-toggle-group>
+        }
         
         <!-- Clear Filters -->
         @if (hasFilters()) {
           <button mat-stroked-button color="warn" (click)="clearFilters()">
             <mat-icon>clear_all</mat-icon>
-            Clear Filters
+            @if (!isMobile()) {
+              <span>Clear Filters</span>
+            }
           </button>
         }
       </div>
+      
+      <!-- Mobile Filters (Collapsed) -->
+      @if (isMobile()) {
+        <div class="mobile-filters">
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Difficulty</mat-label>
+            <mat-select [value]="selectedDifficulty()" (valueChange)="onDifficultyChange($event)">
+              @for (difficulty of difficultyOptions; track difficulty) {
+                <mat-option [value]="difficulty">
+                  {{ difficulty === 'all' ? 'All Difficulties' : difficulty }}
+                </mat-option>
+              }
+            </mat-select>
+            <mat-icon matPrefix>tune</mat-icon>
+          </mat-form-field>
+          
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Min Rating</mat-label>
+            <mat-select [value]="minRating()" (valueChange)="onRatingChange($event)">
+              <mat-option [value]="0">All Ratings</mat-option>
+              <mat-option [value]="3">3+ Stars</mat-option>
+              <mat-option [value]="4">4+ Stars</mat-option>
+              <mat-option [value]="5">5 Stars</mat-option>
+            </mat-select>
+            <mat-icon matPrefix>star</mat-icon>
+          </mat-form-field>
+        </div>
+      }
       
       <!-- Statistics Bar -->
       <div class="stats-bar">
@@ -117,7 +151,11 @@
   <!-- Recipe Grid/List -->
   @if (!loading()) {
     @if (filteredRecipes().length > 0) {
-      <div [class]="viewMode() === 'grid' ? 'recipe-grid' : 'recipe-list-view'">
+      <div 
+        [class]="viewMode() === 'grid' ? 'recipe-grid' : 'recipe-list-view'"
+        [style.grid-template-columns]="viewMode() === 'grid' ? 'repeat(' + layoutConfig().gridColumns + ', 1fr)' : '1fr'"
+        [style.gap]="layoutConfig().containerPadding"
+      >
         @for (recipe of filteredRecipes(); track recipe.id || $index) {
           <mat-card class="recipe-card" [routerLink]="['/recipes', recipe.id || $index]">
             <div class="card-image-container">

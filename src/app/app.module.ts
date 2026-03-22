@@ -1,4 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { StoreModule } from '@ngrx/store';
@@ -12,13 +13,13 @@ import * as fromApp from './store/app.reducer';
 import { CoreModule } from './core.module';
 import { AuthEffects } from './auth/store/auth.effects';
 import { environment } from '../environments/environment';
-import { RecipeEffects } from './recipes/store/recipe.effects';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { RecipeEffects } from './store/recipes/recipe.effects';
 
 @NgModule({
   declarations: [AppComponent],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     HttpClientModule,
     AppRoutingModule,
     StoreModule.forRoot(fromApp.appReducer),
@@ -30,7 +31,6 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
     StoreRouterConnectingModule.forRoot(),
     SharedModule,
     CoreModule,
-    NgbModule,
   ],
   bootstrap: [AppComponent],
   // providers: [LoggingService]

@@ -42,8 +42,36 @@ $dark-theme: mat.define-dark-theme((
   @include mat.all-component-colors($dark-theme);
   
   /* Dark theme background and text colors */
-  background-color: #303030;
-  color: rgba(255, 255, 255, 0.87);
+  background-color: #303030 !important;
+  color: rgba(255, 255, 255, 0.87) !important;
+  
+  /* Ensure nested elements inherit dark theme */
+  .container, .row, .col-md-12, .col-md-5, .col-md-7 {
+    background-color: transparent;
+  }
+  
+  /* Card styling for dark mode */
+  mat-card {
+    background-color: #424242;
+    color: rgba(255, 255, 255, 0.87);
+  }
+  
+  /* Input fields in dark mode */
+  input, textarea, select {
+    background-color: #424242;
+    color: rgba(255, 255, 255, 0.87);
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+  
+  /* Links in dark mode */
+  a {
+    color: #90caf9;
+  }
+  
+  /* Bootstrap navbar in dark mode */
+  .navbar {
+    background-color: #1976d2 !important;
+  }
 }
 
 /* Global Styles */

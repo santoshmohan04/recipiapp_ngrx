@@ -15,6 +15,7 @@ import * as ShoppingListActions from '../../store/shopping-list/shopping-list.ac
 import * as ShoppingListSelectors from '../../store/shopping-list/shopping-list.selectors';
 import { ShoppingEditComponent } from './shopping-edit/shopping-edit.component';
 import { NotificationService } from '../../core/services/notification.service';
+import { ResponsiveLayoutService } from '../../core/services/responsive-layout.service';
 
 @Component({
   selector: 'app-shopping-list',
@@ -38,6 +39,14 @@ import { NotificationService } from '../../core/services/notification.service';
 export class ShoppingListComponent {
   private store = inject(Store);
   private notificationService = inject(NotificationService);
+  private responsiveLayout = inject(ResponsiveLayoutService);
+  
+  // Responsive layout signals
+  deviceType = this.responsiveLayout.deviceType;
+  layoutConfig = this.responsiveLayout.layoutConfig;
+  isMobile = this.responsiveLayout.isMobile;
+  isTablet = this.responsiveLayout.isTablet;
+  isDesktop = this.responsiveLayout.isDesktop;
   
   // Convert store observables to signals
   private allIngredients = toSignal(

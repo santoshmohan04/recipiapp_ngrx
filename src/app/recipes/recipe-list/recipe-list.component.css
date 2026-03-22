@@ -1,0 +1,22 @@
+.empty-state {
+  margin-top: 2rem;
+}
+
+.empty-state mat-card {
+  padding: 2rem;
+  text-align: center;
+}
+
+.empty-state p {
+  color: #666;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+:host-context(.dark-theme) .empty-state p {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+mat-progress-bar {
+  margin-bottom: 1rem;
+}

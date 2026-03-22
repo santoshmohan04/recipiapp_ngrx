@@ -1,6 +1,21 @@
+// Breakpoint Variables
+$mobile-max: 767.98px;
+$tablet-min: 768px;
+$tablet-max: 1199.98px;
+$desktop-min: 1200px;
+
 .recipe-list-container {
   max-width: 100%;
   margin: 0 auto;
+  padding: 24px;
+
+  @media (max-width: $tablet-max) {
+    padding: 16px;
+  }
+
+  @media (max-width: $mobile-max) {
+    padding: 12px;
+  }
 }
 
 .header {
@@ -9,6 +24,17 @@
   align-items: center;
   margin-bottom: 2rem;
   padding: 0 0.5rem;
+
+  @media (max-width: $mobile-max) {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    
+    button {
+      width: 100%;
+    }
+  }
 }
 
 .header h2 {
@@ -16,31 +42,181 @@
   font-size: 2rem;
   font-weight: 500;
   color: #333;
+
+  @media (max-width: $mobile-max) {
+    font-size: 1.5rem;
+  }
+}
+
+/* Controls Card */
+.controls-card {
+  margin-bottom: 2rem;
+
+  @media (max-width: $mobile-max) {
+    margin-bottom: 1rem;
+  }
+}
+
+.controls-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr auto auto;
+  gap: 1rem;
+  align-items: center;
+
+  @media (max-width: $tablet-max) {
+    grid-template-columns: 1fr 1fr auto;
+    gap: 0.75rem;
+  }
+
+  &.mobile-layout {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+
+    .search-field {
+      grid-column: 1;
+    }
+  }
+}
+
+.search-field {
+  min-width: 0; // Prevent flex overflow
+}
+
+.full-width-mobile {
+  @media (max-width: $mobile-max) {
+    width: 100%;
+  }
+}
+
+.mobile-filters {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+
+  .filter-field {
+    width: 100%;
+  }
+}
+
+/* Statistics Bar */
+.stats-bar {
+  margin-top: 1rem;
+  
+  mat-chip-set {
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: $mobile-max) {
+    mat-chip {
+      font-size: 0.75rem;
+      min-height: 28px;
+    }
+  }
 }
 
 /* Responsive Grid Layout */
 .recipe-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
   padding: 0 0.5rem;
-}
-
-/* Tablet: 2 columns */
-@media (max-width: 1024px) {
-  .recipe-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-/* Mobile: 1 column */
-@media (max-width: 599px) {
-  .recipe-grid {
-    grid-template-columns: 1fr;
-  }
   
-  .header h2 {
-    font-size: 1.5rem;
+  // Grid columns are set dynamically via [style.grid-template-columns]
+  // Desktop (>1200px): 4 columns
+  // Tablet (768-1200px): 2 columns  
+  // Mobile (<768px): 1 column
+
+  @media (max-width: $tablet-max) {
+    gap: 1rem;
+  }
+
+  @media (max-width: $mobile-max) {
+    gap: 0.75rem;
+    padding: 0;
+  }
+}
+
+/* List View Layout */
+.recipe-list-view {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0 0.5rem;
+
+  .recipe-card {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    grid-template-rows: auto 1fr auto;
+    height: auto;
+    max-height: 250px;
+
+    @media (max-width: $tablet-max) {
+      grid-template-columns: 200px 1fr;
+      max-height: 220px;
+    }
+
+    @media (max-width: $mobile-max) {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto auto;
+      max-height: none;
+    }
+
+    .card-image-container {
+      grid-column: 1;
+      grid-row: 1 / -1;
+      height: 100%;
+
+      @media (max-width: $mobile-max) {
+        grid-column: 1;
+        grid-row: 1;
+        height: 200px;
+      }
+    }
+
+    mat-card-header {
+      grid-column: 2;
+      grid-row: 1;
+
+      @media (max-width: $mobile-max) {
+        grid-column: 1;
+        grid-row: 2;
+      }
+    }
+
+    mat-card-content {
+      grid-column: 2;
+      grid-row: 2;
+
+      @media (max-width: $mobile-max) {
+        grid-column: 1;
+        grid-row: 3;
+      }
+    }
+
+    mat-card-actions {
+      grid-column: 2;
+      grid-row: 3;
+
+      @media (max-width: $mobile-max) {
+        grid-column: 1;
+        grid-row: 4;
+      }
+    }
+  }
+}
+
+/* Loading State */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  gap: 1rem;
+  
+  p {
+    color: #666;
+    font-size: 1rem;
   }
 }
 
@@ -74,6 +250,10 @@
   overflow: hidden;
   height: 200px;
   background-color: #f5f5f5;
+
+  @media (max-width: $mobile-max) {
+    height: 180px;
+  }
 }
 
 .card-image-container img {
@@ -102,6 +282,43 @@
   font-size: 48px;
   width: 48px;
   height: 48px;
+}
+
+/* Difficulty Badge */
+.difficulty-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+  &[data-difficulty="Easy"] {
+    background-color: rgba(76, 175, 80, 0.9);
+    color: white;
+  }
+
+  &[data-difficulty="Medium"] {
+    background-color: rgba(255, 152, 0, 0.9);
+    color: white;
+  }
+
+  &[data-difficulty="Hard"] {
+    background-color: rgba(244, 67, 54, 0.9);
+    color: white;
+  }
+
+  @media (max-width: $mobile-max) {
+    font-size: 0.7rem;
+    padding: 3px 10px;
+    top: 8px;
+    right: 8px;
+  }
 }
 
 /* Card Header */

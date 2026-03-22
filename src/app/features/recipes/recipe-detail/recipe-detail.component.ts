@@ -19,6 +19,7 @@ import * as ShoppingListActions from '../../../store/shopping-list/shopping-list
 import { Recipe } from '../models/recipe.model';
 import { AsyncPipe } from '@angular/common';
 import { NotificationService } from '../../../core/services/notification.service';
+import { ResponsiveLayoutService } from '../../../core/services/responsive-layout.service';
 
 @Component({
   selector: 'app-recipe-detail',
@@ -44,7 +45,15 @@ export class RecipeDetailComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private store = inject(Store);
   private notificationService = inject(NotificationService);
+  private responsiveLayout = inject(ResponsiveLayoutService);
   private destroy$ = new Subject<void>();
+  
+  // Responsive layout signals
+  deviceType = this.responsiveLayout.deviceType;
+  layoutConfig = this.responsiveLayout.layoutConfig;
+  isMobile = this.responsiveLayout.isMobile;
+  isTablet = this.responsiveLayout.isTablet;
+  isDesktop = this.responsiveLayout.isDesktop;
   
   recipe$!: Observable<Recipe | undefined>;
   recipeId: string | number = '';

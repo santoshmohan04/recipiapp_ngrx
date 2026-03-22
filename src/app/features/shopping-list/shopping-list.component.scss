@@ -1,3 +1,9 @@
+// Breakpoint Variables
+$mobile-max: 767.98px;
+$tablet-min: 768px;
+$tablet-max: 1199.98px;
+$desktop-min: 1200px;
+
 .shopping-list-container {
   max-width: 900px;
   margin: 0 auto;
@@ -5,6 +11,27 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+
+  @media (max-width: $tablet-max) {
+    max-width: 100%;
+    padding: 16px;
+  }
+
+  @media (max-width: $mobile-max) {
+    padding: 12px;
+    gap: 16px;
+  }
+
+  &.mobile-layout {
+    .add-ingredient-card,
+    .shopping-list-card {
+      mat-card-header {
+        mat-card-title {
+          font-size: 1.125rem;
+        }
+      }
+    }
+  }
 
   // Add Ingredient Card
   .add-ingredient-card {
@@ -229,10 +256,8 @@
 }
 
 // Responsive Design
-@media (max-width: 768px) {
+@media (max-width: $mobile-max) {
   .shopping-list-container {
-    padding: 12px;
-
     .search-section {
       .quick-actions {
         flex-direction: column;

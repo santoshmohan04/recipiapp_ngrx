@@ -1,0 +1,34 @@
+.theme-toggle {
+  color: white !important;
+  margin-left: auto;
+  margin-right: 1rem;
+}
+
+.theme-toggle mat-icon {
+  transition: transform 0.3s ease;
+}
+
+.theme-toggle:hover mat-icon {
+  transform: rotate(180deg);
+}
+
+.manage-menu-btn {
+  color: rgba(255, 255, 255, 0.55);
+  padding: 0.5rem 1rem;
+  text-transform: none;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  border-radius: 0;
+}
+
+.manage-menu-btn:hover {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* Ensure proper spacing on small screens */
+@media (max-width: 576px) {
+  .theme-toggle {
+    margin-right: 0.5rem;
+  }
+}
