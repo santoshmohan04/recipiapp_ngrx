@@ -1,0 +1,39 @@
+<div class="shopping-list-container">
+  <mat-card class="edit-card">
+    <mat-card-header>
+      <mat-card-title>Add/Edit Ingredients</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <app-shopping-edit></app-shopping-edit>
+    </mat-card-content>
+  </mat-card>
+  
+  <mat-card class="list-card">
+    <mat-card-header>
+      <mat-card-title>Shopping List</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      @if (shoppingState$ | async; as shoppingState) {
+        @if (shoppingState.ingredients.length > 0) {
+          <mat-list>
+            @for (ingredient of shoppingState.ingredients; track $index) {
+              <mat-list-item (click)="onEditItem($index)">
+                <span matListItemTitle>{{ ingredient.name }}</span>
+                <span matListItemLine>Amount: {{ ingredient.amount }}</span>
+                <button mat-icon-button matListItemMeta (click)="onDeleteItem($event, $index)">
+                  <mat-icon color="warn">delete</mat-icon>
+                </button>
+              </mat-list-item>
+              <mat-divider></mat-divider>
+            }
+          </mat-list>
+        } @else {
+          <div class="empty-state">
+            <mat-icon>shopping_cart</mat-icon>
+            <p>Your shopping list is empty</p>
+          </div>
+        }
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

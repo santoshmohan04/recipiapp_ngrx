@@ -1,0 +1,23 @@
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.name-field {
+  flex: 2;
+}
+
+.amount-field {
+  flex: 1;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+}

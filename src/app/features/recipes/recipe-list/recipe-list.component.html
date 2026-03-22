@@ -1,0 +1,30 @@
+<div class="recipe-list-container">
+  <div class="header">
+    <h2>Recipes</h2>
+    <button mat-raised-button color="primary" routerLink="/recipes/new">
+      <mat-icon>add</mat-icon>
+      New Recipe
+    </button>
+  </div>
+  
+  @if (recipeState$ | async; as recipeState) {
+    @if (recipeState.recipes.length > 0) {
+      <mat-nav-list>
+        @for (recipe of recipeState.recipes; track $index) {
+          <a mat-list-item [routerLink]="['/recipes', $index]" routerLinkActive="active">
+            <img matListItemAvatar [src]="recipe.imagePath" [alt]="recipe.name" />
+            <span matListItemTitle>{{ recipe.name }}</span>
+            <span matListItemLine>{{ recipe.description }}</span>
+          </a>
+        }
+      </mat-nav-list>
+    } @else {
+      <mat-card class="empty-state">
+        <mat-card-content>
+          <mat-icon>restaurant_menu</mat-icon>
+          <p>No recipes yet. Create your first recipe!</p>
+        </mat-card-content>
+      </mat-card>
+    }
+  }
+</div>
