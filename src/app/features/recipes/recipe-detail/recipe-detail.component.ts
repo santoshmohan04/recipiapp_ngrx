@@ -56,7 +56,7 @@ export class RecipeDetailComponent implements OnInit, OnDestroy {
   isDesktop = this.responsiveLayout.isDesktop;
   
   recipe$!: Observable<Recipe | undefined>;
-  recipeId: string | number = '';
+  recipeId: string = '';
   
   // LOCAL UI STATE - Using Signals
   

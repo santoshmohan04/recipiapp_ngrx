@@ -38,7 +38,7 @@ export class RecipeEditComponent {
   private store = inject(Store);
   
   editMode = signal(false);
-  recipeId = signal<string | number | null>(null);
+  recipeId = signal<string | null>(null);
   recipeIndex = signal<number>(-1);
   
   difficultyLevels = ['Easy', 'Medium', 'Hard'];

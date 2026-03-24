@@ -5,7 +5,7 @@ import { Recipe } from '../../features/recipes/models/recipe.model';
 
 // Entity State Interface
 export interface State extends EntityState<Recipe> {
-  selectedRecipeId: string | number | null;
+  selectedRecipeId: string | null;
   loading: boolean;
   loaded: boolean;
   error: string | null;

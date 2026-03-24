@@ -11,6 +11,6 @@ export class Recipe {
     public instructions: string[] = [],
     public difficulty: string = 'Medium',
     public servings: number = 4,
-    public id?: string | number
+    public id?: string
   ) {}
 }

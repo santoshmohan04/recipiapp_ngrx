@@ -19,7 +19,7 @@ export const loadRecipesFail = createAction(
 // Load Single Recipe
 export const loadRecipe = createAction(
   '[Recipes API] Load Recipe',
-  props<{ id: string | number }>()
+  props<{ id: string }>()
 );
 
 export const loadRecipeSuccess = createAction(
@@ -51,7 +51,7 @@ export const addRecipeFail = createAction(
 // Update Recipe
 export const updateRecipe = createAction(
   '[Recipes API] Update Recipe',
-  props<{ id: string | number; recipe: Recipe }>()
+  props<{ id: string; recipe: Recipe }>()
 );
 
 export const updateRecipeSuccess = createAction(
@@ -67,12 +67,12 @@ export const updateRecipeFail = createAction(
 // Delete Recipe
 export const deleteRecipe = createAction(
   '[Recipes API] Delete Recipe',
-  props<{ id: string | number }>()
+  props<{ id: string }>()
 );
 
 export const deleteRecipeSuccess = createAction(
   '[Recipes API] Delete Recipe Success',
-  props<{ id: string | number }>()
+  props<{ id: string }>()
 );
 
 export const deleteRecipeFail = createAction(
@@ -83,7 +83,7 @@ export const deleteRecipeFail = createAction(
 // UI Actions
 export const selectRecipe = createAction(
   '[Recipes Page] Select Recipe',
-  props<{ id: string | number }>()
+  props<{ id: string }>()
 );
 
 export const clearSelectedRecipe = createAction(

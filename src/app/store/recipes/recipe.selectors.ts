@@ -36,7 +36,7 @@ export const selectSelectedRecipeId = createSelector(
 );
 
 // Select recipe by ID
-export const selectRecipeById = (id: string | number) =>
+export const selectRecipeById = (id: string) =>
   createSelector(
     selectRecipeEntities,
     (entities) => entities[id]
