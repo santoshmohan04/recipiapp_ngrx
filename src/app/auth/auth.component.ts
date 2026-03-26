@@ -62,12 +62,10 @@ export class AuthComponent implements OnInit, OnDestroy {
     }
 
     if (this.isLoginMode) {
-      // authObs = this.authService.login(email, password);
       this.store.dispatch(
         AuthActions.loginStart({
           email: email,
           password: password,
-          returnSecureToken: true,
         })
       );
     } else {
@@ -75,7 +73,6 @@ export class AuthComponent implements OnInit, OnDestroy {
         AuthActions.signupStart({
           email: email,
           password: password,
-          returnSecureToken: true,
         })
       );
     }

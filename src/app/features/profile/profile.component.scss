@@ -1,0 +1,49 @@
+.profile-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+mat-card-header {
+  margin-bottom: 1.5rem;
+}
+
+mat-icon[mat-card-avatar] {
+  width: 40px;
+  height: 40px;
+  font-size: 40px;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+}
+
+.empty-state mat-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  color: #ccc;
+  margin-bottom: 1rem;
+}
+
+.empty-state p {
+  color: #666;
+  font-size: 1.1rem;
+}

@@ -1,6 +1,136 @@
-/* Add application styles & imports to this file! */
-html,
-body {
+/* Angular Material Core */
+@use '@angular/material' as mat;
+
+/* Include core Material styles */
+@include mat.core();
+
+/* Define Light Theme */
+$light-primary: mat.define-palette(mat.$indigo-palette);
+$light-accent: mat.define-palette(mat.$pink-palette, A200, A100, A400);
+$light-warn: mat.define-palette(mat.$red-palette);
+
+$light-theme: mat.define-light-theme((
+  color: (
+    primary: $light-primary,
+    accent: $light-accent,
+    warn: $light-warn,
+  ),
+  typography: mat.define-typography-config(),
+  density: 0,
+));
+
+/* Define Dark Theme */
+$dark-primary: mat.define-palette(mat.$blue-palette);
+$dark-accent: mat.define-palette(mat.$amber-palette, A200, A100, A400);
+$dark-warn: mat.define-palette(mat.$deep-orange-palette);
+
+$dark-theme: mat.define-dark-theme((
+  color: (
+    primary: $dark-primary,
+    accent: $dark-accent,
+    warn: $dark-warn,
+  ),
+  typography: mat.define-typography-config(),
+  density: 0,
+));
+
+/* Apply Light Theme by Default */
+@include mat.all-component-themes($light-theme);
+
+/* Apply Dark Theme when class is present */
+.dark-theme {
+  @include mat.all-component-colors($dark-theme);
+  
+  /* Dark theme background and text colors */
+  background-color: #303030;
+  color: rgba(255, 255, 255, 0.87);
+}
+
+/* Global Styles */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
   height: 100%;
   margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
 }
+
+body {
+  background-color: #f5f5f5;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Material Design Typography */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: 400;
+}
+
+/* Utility Classes */
+.full-width {
+  width: 100%;
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* Card Spacing */
+mat-card {
+  margin-bottom: 1rem;
+}
+
+/* Link Styles */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Snackbar Notification Styles */
+.success-snackbar {
+  --mdc-snackbar-container-color: #4caf50 !important;
+  --mat-snack-bar-button-color: #ffffff !important;
+}
+
+.success-snackbar .mat-mdc-snack-bar-label {
+  color: #ffffff !important;
+}
+
+.error-snackbar {
+  --mdc-snackbar-container-color: #f44336 !important;
+  --mat-snack-bar-button-color: #ffffff !important;
+}
+
+.error-snackbar .mat-mdc-snack-bar-label {
+  color: #ffffff !important;
+}
+
+.warning-snackbar {
+  --mdc-snackbar-container-color: #ff9800 !important;
+  --mat-snack-bar-button-color: #ffffff !important;
+}
+
+.warning-snackbar .mat-mdc-snack-bar-label {
+  color: #ffffff !important;
+}
+
+.info-snackbar {
+  --mdc-snackbar-container-color: #2196f3 !important;
+  --mat-snack-bar-button-color: #ffffff !important;
+}
+
+.info-snackbar .mat-mdc-snack-bar-label {
+  color: #ffffff !important;
+}
+
+/* Snackbar positioning and animation */
+.mat-mdc-snack-bar-container {
+  --mat-snack-bar-button-color: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 3px 5px -1px rgba(0, 0, 0, 0.2),
+              0 6px 10px 0 rgba(0, 0, 0, 0.14),
+              0 1px 18px 0 rgba(0, 0, 0, 0.12);
+}
+

@@ -4,12 +4,32 @@
   </div>
 </div>
 <hr>
-<div class="row">
+
+<!-- Loading State with Skeleton Loaders -->
+<div class="row" *ngIf="isLoading">
+  <div class="col-xs-12">
+    <mat-progress-bar mode="indeterminate" color="primary"></mat-progress-bar>
+    <app-recipe-skeleton *ngFor="let i of [1, 2, 3]"></app-recipe-skeleton>
+  </div>
+</div>
+
+<!-- Recipe List -->
+<div class="row" *ngIf="!isLoading">
   <div class="col-xs-12">
     <app-recipe-item
       *ngFor="let recipeEl of recipes; let i = index"
       [recipe]="recipeEl"
       [index]="i"></app-recipe-item>
+    
+    <!-- Empty State -->
+    <div *ngIf="recipes.length === 0" class="empty-state">
+      <mat-card>
+        <mat-card-content>
+          <p class="text-center">No recipes found. Click "New Recipe" to create your first recipe!</p>
+        </mat-card-content>
+      </mat-card>
+    </div>
   </div>
 </div>
+
 

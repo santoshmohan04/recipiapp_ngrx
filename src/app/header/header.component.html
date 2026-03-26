@@ -1,6 +1,17 @@
 <nav class="navbar navbar-expand-sm bg-primary navbar-dark">
   <div class="container-fluid">
     <a routerLink="/" class="navbar-brand">Recipe Book</a>
+    
+    <!-- Theme Toggle Button (always visible) -->
+    <button
+      mat-icon-button
+      (click)="onToggleTheme()"
+      [attr.aria-label]="themeService.isDarkMode() ? 'Switch to light mode' : 'Switch to dark mode'"
+      class="theme-toggle"
+    >
+      <mat-icon>{{ themeService.isDarkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+    </button>
+    
     <button
       class="navbar-toggler"
       type="button"
@@ -22,25 +33,18 @@
         <li routerLinkActive="active" class="nav-item">
           <a class="nav-link" routerLink="/shopping-list">Shopping List</a>
         </li>
-        <li ngbDropdown class="nav-item" *ngIf="isAuthenticated">
-          <a style="cursor: pointer;" class="nav-link" ngbDropdownToggle
-            >Manage</a>
-          <div ngbDropdownMenu>
-            <button
-              style="cursor: pointer;"
-              ngbDropdownItem
-              (click)="onSaveData()"
-            >
+        <li class="nav-item" *ngIf="isAuthenticated">
+          <button mat-button [matMenuTriggerFor]="manageMenu" class="nav-link manage-menu-btn">
+            Manage
+          </button>
+          <mat-menu #manageMenu="matMenu">
+            <button mat-menu-item (click)="onSaveData()">
               Save Data
             </button>
-            <button
-              style="cursor: pointer;"
-              ngbDropdownItem
-              (click)="onFetchData()"
-            >
+            <button mat-menu-item (click)="onFetchData()">
               Fetch Data
             </button>
-          </div>
+          </mat-menu>
         </li>
         <li *ngIf="isAuthenticated" class="nav-item">
           <a style="cursor: pointer;" class="nav-link" (click)="onLogout()"
