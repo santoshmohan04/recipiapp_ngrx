@@ -28,7 +28,7 @@ export class ShoppingEditComponent {
   private notificationService = inject(NotificationService);
   
   editMode = signal(false);
-  editedItemIndex = signal(-1);
+  editedItemId = signal<string | null>(null);
   
   ingredientForm = this.fb.group({
     name: ['', Validators.required],
@@ -38,16 +38,19 @@ export class ShoppingEditComponent {
   constructor() {
     effect(() => {
       this.store.select('shoppingList').subscribe(state => {
-        if (state.editedIngredientIndex > -1 && state.editedIngredient) {
-          this.editMode.set(true);
-          this.editedItemIndex.set(state.editedIngredientIndex);
-          this.ingredientForm.patchValue({
-            name: state.editedIngredient.name,
-            amount: state.editedIngredient.amount.toString()
-          });
+        if (state.editedItemId) {
+          const editedItem = state.items.find(item => item.id === state.editedItemId);
+          if (editedItem) {
+            this.editMode.set(true);
+            this.editedItemId.set(state.editedItemId);
+            this.ingredientForm.patchValue({
+              name: editedItem.name,
+              amount: editedItem.amount.toString()
+            });
+          }
         } else {
           this.editMode.set(false);
-          this.editedItemIndex.set(-1);
+          this.editedItemId.set(null);
         }
       });
     });
@@ -59,10 +62,10 @@ export class ShoppingEditComponent {
     const { name, amount } = this.ingredientForm.value;
     const ingredient = new Ingredient(name!, +amount!);
 
-    if (this.editMode()) {
+    if (this.editMode() && this.editedItemId()) {
       this.store.dispatch(
         ShoppingListActions.updateIngredient({ 
-          index: this.editedItemIndex(), 
+          id: this.editedItemId()!, 
           ingredient 
         })
       );

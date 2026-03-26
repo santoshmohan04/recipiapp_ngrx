@@ -11,6 +11,10 @@ import { routes } from './app.routes';
 import { appReducer } from './store/app.reducer';
 import { AuthEffects } from './store/auth/auth.effects';
 import { RecipeEffects } from './store/recipes/recipe.effects';
+import { ShoppingListEffects } from './store/shopping-list/shopping-list.effects';
+import { FavoritesEffects } from './store/favorites/favorites.effects';
+import { CommentsEffects } from './store/comments/comments.effects';
+import { RatingsEffects } from './store/ratings/ratings.effects';
 import { authInterceptor } from './core/interceptors/auth-interceptor';
 
 export const appConfig: ApplicationConfig = {
@@ -22,7 +26,7 @@ export const appConfig: ApplicationConfig = {
       withInterceptors([authInterceptor])
     ),
     provideStore(appReducer),
-    provideEffects([AuthEffects, RecipeEffects]),
+    provideEffects([AuthEffects, RecipeEffects, ShoppingListEffects, FavoritesEffects, CommentsEffects, RatingsEffects]),
     provideStoreDevtools({
       maxAge: 25,
       logOnly: false,

@@ -4,7 +4,6 @@ import { map, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 
 import { Recipe } from '../recipes/recipe.model';
-import { RecipeService } from '../recipes/recipe.service';
 import { environment } from '../../environments/environment';
 
 /**
@@ -21,17 +20,13 @@ import { environment } from '../../environments/environment';
 export class DataStorageService {
   private apiUrl = `${environment.apiUrl}/recipes`;
 
-  constructor(
-    private http: HttpClient,
-    private recipeService: RecipeService
-  ) {}
+  constructor(private http: HttpClient) {}
 
   /**
    * Store/Save all recipes to the backend
    * @deprecated Use RecipeService with NgRx store instead
    */
-  storeRecipes(): Observable<any> {
-    const recipes = this.recipeService.getRecipes();
+  storeRecipes(recipes: Recipe[]): Observable<any> {
     return this.http.put(`${this.apiUrl}/bulk`, recipes).pipe(
       tap(response => {
         console.log('Recipes saved:', response);
@@ -55,7 +50,7 @@ export class DataStorageService {
         });
       }),
       tap(recipes => {
-        this.recipeService.setRecipes(recipes);
+        console.log('Recipes fetched:', recipes.length);
       })
     );
   }

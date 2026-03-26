@@ -55,6 +55,17 @@
     
     <!-- Action Buttons -->
     <div class="action-buttons" [class.mobile-stack]="isMobile()">
+      <button mat-raised-button 
+              [color]="isFavorite() ? 'accent' : ''" 
+              (click)="onToggleFavorite()"
+              [disabled]="isTogglingFavorite()">
+        <mat-icon>{{ isFavorite() ? 'favorite' : 'favorite_border' }}</mat-icon>
+        @if (!isMobile()) {
+          <span>{{ isFavorite() ? 'Favorited' : 'Add to Favorites' }}</span>
+        } @else {
+          <span>{{ isFavorite() ? 'Fav' : 'Favorite' }}</span>
+        }
+      </button>
       <button mat-raised-button color="primary" (click)="onAddToShoppingList(recipe)">
         <mat-icon>shopping_cart</mat-icon>
         @if (!isMobile()) {
@@ -142,23 +153,153 @@
           </div>
         </mat-tab>
         
-        <!-- Comments Tab -->
-        <mat-tab label="Comments">
+        <!-- Comments & Ratings Tab -->
+        <mat-tab label="Comments & Ratings">
           <ng-template mat-tab-label>
             <mat-icon class="tab-icon">comment</mat-icon>
-            Comments
+            Comments & Ratings
           </ng-template>
           
           <div class="tab-content">
-            <div class="comments-section">
-              <div class="empty-message">
-                <mat-icon>forum</mat-icon>
-                <p>No comments yet. Be the first to comment!</p>
-                <button mat-raised-button color="primary">
-                  <mat-icon>add_comment</mat-icon>
-                  Add Comment
-                </button>
+            <!-- Rating Section -->
+            <div class="ratings-section">
+              <h3 class="section-title">
+                <mat-icon>star</mat-icon> Rate this Recipe
+              </h3>
+              
+              @if (ratingStats()) {
+                <div class="rating-stats">
+                  <div class="average-rating">
+                    <span class="rating-number">{{ ratingStats()?.averageRating.toFixed(1) }}</span>
+                    <div class="rating-stars-display">
+                      @for (star of getRatingStars(); track star) {
+                        <mat-icon [class.filled]="star <= (ratingStats()?.averageRating || 0)">
+                          {{ star <= (ratingStats()?.averageRating || 0) ? 'star' : 'star_border' }}
+                        </mat-icon>
+                      }
+                    </div>
+                    <span class="rating-count">{{ ratingStats()?.totalRatings }} ratings</span>
+                  </div>
+                </div>
+              }
+              
+              <div class="user-rating">
+                <p>Your rating:</p>
+                <div class="rating-stars-input">
+                  @for (star of getRatingStars(); track star) {
+                    <button mat-icon-button
+                            (click)="onRateRecipe(star)"
+                            [class.filled]="isStarFilled(star)"
+                            [disabled]="ratingsLoading()">
+                      <mat-icon>
+                        {{ isStarFilled(star) ? 'star' : 'star_border' }}
+                      </mat-icon>
+                    </button>
+                  }
+                </div>
+                @if (userRating()) {
+                  <span class="user-rating-value">You rated: {{ userRating()?.rating }}/5</span>
+                }
               </div>
+              
+              <mat-divider class="section-divider"></mat-divider>
+            </div>
+            
+            <!-- Comments Section -->
+            <div class="comments-section">
+              <h3 class="section-title">
+                <mat-icon>forum</mat-icon> Comments
+              </h3>
+              
+              <!-- Add Comment Form -->
+              <div class="add-comment-form">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Write a comment...</mat-label>
+                  <textarea matInput
+                            [(ngModel)]="newCommentText"
+                            [value]="newCommentText()"
+                            (ngModelChange)="newCommentText.set($event)"
+                            rows="3"
+                            placeholder="Share your thoughts about this recipe..."
+                            [disabled]="isSubmittingComment()"></textarea>
+                </mat-form-field>
+                <div class="form-actions">
+                  <button mat-raised-button 
+                          color="primary"
+                          (click)="onSubmitComment()"
+                          [disabled]="!newCommentText().trim() || isSubmittingComment()">
+                    <mat-icon>send</mat-icon>
+                    {{ isSubmittingComment() ? 'Posting...' : 'Post Comment' }}
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Comments List -->
+              @if (commentsLoading()) {
+                <div class="loading-spinner">
+                  <mat-spinner diameter="40"></mat-spinner>
+                  <p>Loading comments...</p>
+                </div>
+              } @else if (commentsError()) {
+                <div class="error-message">
+                  <mat-icon>error_outline</mat-icon>
+                  <p>{{ commentsError() }}</p>
+                </div>
+              } @else if (comments().length > 0) {
+                <div class="comments-list">
+                  @for (comment of comments(); track comment.id) {
+                    <mat-card class="comment-card">
+                      <mat-card-header>
+                        <mat-icon mat-card-avatar>account_circle</mat-icon>
+                        <mat-card-title>{{ comment.userName || 'Anonymous' }}</mat-card-title>
+                        <mat-card-subtitle>{{ comment.createdAt | date: 'short' }}</mat-card-subtitle>
+                      </mat-card-header>
+                      <mat-card-content>
+                        @if (editingCommentId() === comment.id) {
+                          <!-- Edit Mode -->
+                          <mat-form-field appearance="outline" class="full-width">
+                            <textarea matInput
+                                      [(ngModel)]="editCommentText"
+                                      [value]="editCommentText()"
+                                      (ngModelChange)="editCommentText.set($event)"
+                                      rows="3"></textarea>
+                          </mat-form-field>
+                          <div class="comment-actions">
+                            <button mat-button                                     color="primary"
+                                    (click)="onSaveEditComment(comment.id)">
+                              <mat-icon>save</mat-icon> Save
+                            </button>
+                            <button mat-button (click)="onCancelEditComment()">
+                              <mat-icon>cancel</mat-icon> Cancel
+                            </button>
+                          </div>
+                        } @else {
+                          <!-- View Mode -->
+                          <p class="comment-text">{{ comment.content }}</p>
+                          <div class="comment-actions">
+                            <button mat-icon-button 
+                                    (click)="onEditComment(comment.id, comment.content)"
+                                    matTooltip="Edit comment">
+                              <mat-icon>edit</mat-icon>
+                            </button>
+                            <button mat-icon-button 
+                                    (click)="onDeleteComment(comment.id)"
+                                    matTooltip="Delete comment"
+                                    color="warn">
+                              <mat-icon>delete</mat-icon>
+                            </button>
+                          </div>
+                        }
+                      </mat-card-content>
+                    </mat-card>
+                  }
+                </div>
+              } @else {
+                <div class="empty-message">
+                  <mat-icon>forum</mat-icon>
+                  <p>No comments yet. Be the first to comment!</p>
+                </div>
+              }
             </div>
           </div>
         </mat-tab>

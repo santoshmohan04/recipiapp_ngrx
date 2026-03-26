@@ -6,6 +6,11 @@ import { exhaustMap, take } from 'rxjs/operators';
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const store = inject(Store);
 
+  // Skip auth header for auth endpoints (login, register)
+  if (req.url.includes('/auth/login') || req.url.includes('/auth/register')) {
+    return next(req);
+  }
+
   return store.select('auth').pipe(
     take(1),
     exhaustMap(authState => {
@@ -13,8 +18,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         return next(req);
       }
       
+      // Add Authorization header with Bearer token
       const modifiedReq = req.clone({
-        params: req.params.append('auth', authState.user.token)
+        setHeaders: {
+          Authorization: `Bearer ${authState.user.token}`
+        }
       });
       return next(modifiedReq);
     })

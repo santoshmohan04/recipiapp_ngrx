@@ -1,7 +1,13 @@
 <div class="auth-container">
   <mat-card class="auth-card">
     <mat-card-header>
-      <mat-card-title>{{ isLoginMode() ? 'Login' : 'Sign Up' }}</mat-card-title>
+      <div class="logo-section">
+        <mat-icon class="auth-logo">restaurant</mat-icon>
+      </div>
+      <mat-card-title>{{ isLoginMode() ? 'Welcome Back' : 'Create Account' }}</mat-card-title>
+      <mat-card-subtitle>
+        {{ isLoginMode() ? 'Sign in to access your recipes' : 'Join Recipe Book today' }}
+      </mat-card-subtitle>
     </mat-card-header>
     
     <mat-card-content>
@@ -17,13 +23,31 @@
           }
           
           <form [formGroup]="authForm" (ngSubmit)="onSubmit()">
+            @if (!isLoginMode()) {
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>First Name</mat-label>
+                <input matInput type="text" formControlName="firstName" />
+                @if (authForm.get('firstName')?.hasError('required') && authForm.get('firstName')?.touched) {
+                  <mat-error>First name is required</mat-error>
+                }
+              </mat-form-field>
+              
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Last Name</mat-label>
+                <input matInput type="text" formControlName="lastName" />
+                @if (authForm.get('lastName')?.hasError('required') && authForm.get('lastName')?.touched) {
+                  <mat-error>Last name is required</mat-error>
+                }
+              </mat-form-field>
+            }
+            
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Email</mat-label>
               <input matInput type="email" formControlName="email" />
-              @if (authForm.get('email')?.hasError('required')) {
+              @if (authForm.get('email')?.hasError('required') && authForm.get('email')?.touched) {
                 <mat-error>Email is required</mat-error>
               }
-              @if (authForm.get('email')?.hasError('email')) {
+              @if (authForm.get('email')?.hasError('email') && authForm.get('email')?.touched) {
                 <mat-error>Invalid email format</mat-error>
               }
             </mat-form-field>
@@ -34,13 +58,63 @@
               <button mat-icon-button matSuffix type="button" (click)="togglePasswordVisibility()">
                 <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
               </button>
-              @if (authForm.get('password')?.hasError('required')) {
+              @if (authForm.get('password')?.hasError('required') && authForm.get('password')?.touched) {
                 <mat-error>Password is required</mat-error>
               }
-              @if (authForm.get('password')?.hasError('minlength')) {
+              @if (!isLoginMode() && authForm.get('password')?.hasError('minlength') && authForm.get('password')?.touched) {
+                <mat-error>Password must be at least 8 characters</mat-error>
+              }
+              @if (!isLoginMode() && authForm.get('password')?.hasError('passwordStrength') && authForm.get('password')?.touched) {
+                <mat-error>
+                  Password must contain: uppercase, lowercase, number & special character
+                </mat-error>
+              }
+              @if (isLoginMode() && authForm.get('password')?.hasError('minlength') && authForm.get('password')?.touched) {
                 <mat-error>Password must be at least 6 characters</mat-error>
               }
             </mat-form-field>
+            
+            @if (!isLoginMode()) {
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Confirm Password</mat-label>
+                <input matInput [type]="hideConfirmPassword() ? 'password' : 'text'" formControlName="confirmPassword" />
+                <button mat-icon-button matSuffix type="button" (click)="toggleConfirmPasswordVisibility()">
+                  <mat-icon>{{ hideConfirmPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+                @if (authForm.get('confirmPassword')?.hasError('required') && authForm.get('confirmPassword')?.touched) {
+                  <mat-error>Please confirm your password</mat-error>
+                }
+                @if (authForm.hasError('passwordMismatch') && authForm.get('confirmPassword')?.touched) {
+                  <mat-error>Passwords do not match</mat-error>
+                }
+              </mat-form-field>
+              
+              <div class="password-hints">
+                <p class="hint-title">Password requirements:</p>
+                <ul class="requirements-list">
+                  <li [class.valid]="hasMinLength()">
+                    <mat-icon>{{ hasMinLength() ? 'check_circle' : 'cancel' }}</mat-icon>
+                    At least 8 characters
+                  </li>
+                  <li [class.valid]="hasUpperCase()">
+                    <mat-icon>{{ hasUpperCase() ? 'check_circle' : 'cancel' }}</mat-icon>
+                    One uppercase letter
+                  </li>
+                  <li [class.valid]="hasLowerCase()">
+                    <mat-icon>{{ hasLowerCase() ? 'check_circle' : 'cancel' }}</mat-icon>
+                    One lowercase letter
+                  </li>
+                  <li [class.valid]="hasNumber()">
+                    <mat-icon>{{ hasNumber() ? 'check_circle' : 'cancel' }}</mat-icon>
+                    One number
+                  </li>
+                  <li [class.valid]="hasSpecialChar()">
+                    <mat-icon>{{ hasSpecialChar() ? 'check_circle' : 'cancel' }}</mat-icon>
+                    One special character
+                  </li>
+                </ul>
+              </div>
+            }
             
             <div class="button-group">
               <button mat-raised-button color="primary" type="submit" [disabled]="!authForm.valid">

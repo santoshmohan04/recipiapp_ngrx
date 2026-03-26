@@ -3,33 +3,54 @@
     <mat-card-header>
       <mat-icon mat-card-avatar color="accent">favorite</mat-icon>
       <mat-card-title>Your Favorite Recipes</mat-card-title>
-      <mat-card-subtitle>Save and organize your favorite recipes</mat-card-subtitle>
+      <mat-card-subtitle>Save and organize your favorite recipes ({{ favoriteCount() }})</mat-card-subtitle>
     </mat-card-header>
     
     <mat-card-content>
-      @if (recipeState$ | async; as recipeState) {
-        @if (recipeState.recipes.length > 0) {
-          <mat-nav-list>
-            @for (recipe of recipeState.recipes; track $index) {
-              <a mat-list-item [routerLink]="['/recipes', $index]">
-                <img matListItemAvatar [src]="recipe.imagePath" [alt]="recipe.name" />
-                <span matListItemTitle>{{ recipe.name }}</span>
-                <span matListItemLine>{{ recipe.description }}</span>
-                <mat-icon matListItemMeta color="accent">favorite</mat-icon>
+      @if (loading()) {
+        <div class="loading-state">
+          <mat-spinner diameter="50"></mat-spinner>
+          <p>Loading your favorites...</p>
+        </div>
+      } @else if (error()) {
+        <div class="error-state">
+          <mat-icon color="warn">error</mat-icon>
+          <h3>Error Loading Favorites</h3>
+          <p>{{ error() }}</p>
+          <button mat-raised-button color="primary" (click)="ngOnInit()">
+            <mat-icon>refresh</mat-icon>
+            Retry
+          </button>
+        </div>
+      } @else if (hasFavorites()) {
+        <mat-nav-list>
+          @for (favorite of favorites(); track favorite.favoriteId) {
+            @if (favorite.recipe) {
+              <a mat-list-item [routerLink]="['/recipes', favorite.recipe.id || favorite.recipe._id]">
+                <img matListItemAvatar [src]="favorite.recipe.imagePath" [alt]="favorite.recipe.name" />
+                <span matListItemTitle>{{ favorite.recipe.name }}</span>
+                <span matListItemLine>{{ favorite.recipe.description }}</span>
+                <button matListItemMeta mat-icon-button 
+                        color="accent" 
+                        (click)="onRemoveFavorite(favorite.recipe.id || favorite.recipe._id); $event.preventDefault();"
+                        matTooltip="Remove from favorites">
+                  <mat-icon>favorite</mat-icon>
+                </button>
               </a>
               <mat-divider></mat-divider>
             }
-          </mat-nav-list>
-        } @else {
-          <div class="empty-state">
-            <mat-icon>favorite_border</mat-icon>
-            <h3>No favorites yet</h3>
-            <p>Start adding recipes to your favorites!</p>
-            <button mat-raised-button color="primary" routerLink="/recipes">
-              Browse Recipes
-            </button>
-          </div>
-        }
+          }
+        </mat-nav-list>
+      } @else {
+        <div class="empty-state">
+          <mat-icon>favorite_border</mat-icon>
+          <h3>No favorites yet</h3>
+          <p>Start adding recipes to your favorites!</p>
+          <button mat-raised-button color="primary" routerLink="/recipes">
+            <mat-icon>explore</mat-icon>
+            Browse Recipes
+          </button>
+        </div>
       }
     </mat-card-content>
   </mat-card>

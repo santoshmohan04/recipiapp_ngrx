@@ -8,54 +8,83 @@ export const selectShoppingListState =
 // Basic Selectors
 export const selectAllIngredients = createSelector(
   selectShoppingListState,
-  (state) => state.ingredients
+  (state) => state.items
 );
 
-export const selectEditedIngredient = createSelector(
+export const selectLoading = createSelector(
   selectShoppingListState,
-  (state) => state.editedIngredient
+  (state) => state.loading
 );
 
-export const selectEditingIndex = createSelector(
+export const selectError = createSelector(
   selectShoppingListState,
-  (state) => state.editedIngredientIndex
+  (state) => state.error
+);
+
+export const selectEditedItemId = createSelector(
+  selectShoppingListState,
+  (state) => state.editedItemId
 );
 
 // Computed Selectors
 export const selectIsEditing = createSelector(
-  selectEditingIndex,
-  (index) => index !== -1
+  selectEditedItemId,
+  (id) => id !== null
+);
+
+export const selectEditingIndex = createSelector(
+  selectShoppingListState,
+  (state) => {
+    if (!state.editedItemId) return -1;
+    return state.items.findIndex(item => item.id === state.editedItemId);
+  }
+);
+
+export const selectEditedIngredient = createSelector(
+  selectShoppingListState,
+  (state) => {
+    if (!state.editedItemId) return null;
+    return state.items.find(item => item.id === state.editedItemId) || null;
+  }
 );
 
 export const selectIngredientCount = createSelector(
   selectAllIngredients,
-  (ingredients) => ingredients.length
+  (items) => items.length
 );
+
+export const selectIngredientById = (id: string) =>
+  createSelector(
+    selectAllIngredients,
+    (items) => items.find(item => item.id === id)
+  );
 
 export const selectIngredientByIndex = (index: number) =>
   createSelector(
     selectAllIngredients,
-    (ingredients) => ingredients[index]
+    (items) => items[index]
   );
 
 // Group ingredients by name (for deduplication/aggregation)
 export const selectGroupedIngredients = createSelector(
   selectAllIngredients,
-  (ingredients) => {
-    const grouped = new Map<string, { name: string; totalAmount: string; count: number }>();
+  (items) => {
+    const grouped = new Map<string, { name: string; totalAmount: string; count: number; ids: string[] }>();
     
-    ingredients.forEach(ing => {
-      const key = ing.name.toLowerCase();
+    items.forEach(item => {
+      const key = item.name.toLowerCase();
       if (grouped.has(key)) {
         const existing = grouped.get(key)!;
-        existing.count++;
-        // Simple concatenation for amounts (could be more sophisticated)
-        existing.totalAmount += `, ${ing.amount}`;
+        existing.count += 1;
+        existing.ids.push(item.id);
+        // Simple aggregation - just concatenate amounts
+        existing.totalAmount = `${existing.totalAmount}, ${item.amount}`;
       } else {
         grouped.set(key, {
-          name: ing.name,
-          totalAmount: String(ing.amount),
-          count: 1
+          name: item.name,
+          totalAmount: String(item.amount),
+          count: 1,
+          ids: [item.id]
         });
       }
     });

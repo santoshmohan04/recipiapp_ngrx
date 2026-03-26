@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, effect } from '@angular/core';
+import { Component, inject, signal, computed, effect, OnInit } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,6 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Store } from '@ngrx/store';
 import { toSignal } from '@angular/core/rxjs-interop';
 import * as ShoppingListActions from '../../store/shopping-list/shopping-list.actions';
@@ -31,12 +32,13 @@ import { ResponsiveLayoutService } from '../../core/services/responsive-layout.s
     MatInputModule,
     MatTooltipModule,
     MatDividerModule,
+    MatProgressSpinnerModule,
     ShoppingEditComponent
   ],
   templateUrl: './shopping-list.component.html',
   styleUrls: ['./shopping-list.component.scss']
 })
-export class ShoppingListComponent {
+export class ShoppingListComponent implements OnInit {
   private store = inject(Store);
   private notificationService = inject(NotificationService);
   private responsiveLayout = inject(ResponsiveLayoutService);
@@ -54,21 +56,36 @@ export class ShoppingListComponent {
     { initialValue: [] }
   );
   
+  loading = toSignal(
+    this.store.select(ShoppingListSelectors.selectLoading),
+    { initialValue: false }
+  );
+  
+  error = toSignal(
+    this.store.select(ShoppingListSelectors.selectError),
+    { initialValue: null }
+  );
+  
   editingIndex = toSignal(
     this.store.select(ShoppingListSelectors.selectEditingIndex),
     { initialValue: -1 }
   );
   
+  editedItemId = toSignal(
+    this.store.select(ShoppingListSelectors.selectEditedItemId),
+    { initialValue: null }
+  );
+  
   // LOCAL UI STATE - Using Signals
   
-  // Selected items for bulk operations
-  selectedIndices = signal<Set<number>>(new Set());
+  // Selected items for bulk operations (using IDs now)
+  selectedIds = signal<Set<string>>(new Set());
   
   // Search/filter state
   searchTerm = signal('');
   
-  // Checked items (purchased)
-  checkedItems = signal<Set<number>>(new Set());
+  // Checked items (purchased) - using IDs
+  checkedIds = signal<Set<string>>(new Set());
   
   // Show only unchecked items
   hideChecked = signal(false);
@@ -80,15 +97,15 @@ export class ShoppingListComponent {
     // Apply search filter
     const search = this.searchTerm().toLowerCase().trim();
     if (search) {
-      ingredients = ingredients.filter((ing, index) => 
+      ingredients = ingredients.filter(ing => 
         ing.name.toLowerCase().includes(search)
       );
     }
     
     // Filter checked items if hideChecked is true
     if (this.hideChecked()) {
-      ingredients = ingredients.filter((_, index) => 
-        !this.checkedItems().has(index)
+      ingredients = ingredients.filter(item => 
+        !this.checkedIds().has(item.id)
       );
     }
     
@@ -98,8 +115,8 @@ export class ShoppingListComponent {
   // Computed statistics
   totalItems = computed(() => this.allIngredients().length);
   filteredCount = computed(() => this.filteredIngredients().length);
-  checkedCount = computed(() => this.checkedItems().size);
-  selectedCount = computed(() => this.selectedIndices().size);
+  checkedCount = computed(() => this.checkedIds().size);
+  selectedCount = computed(() => this.selectedIds().size);
   
   // Computed flags
   hasItems = computed(() => this.totalItems() > 0);
@@ -116,13 +133,14 @@ export class ShoppingListComponent {
       filtered: this.filteredCount(),
       checked: this.checkedCount(),
       selected: this.selectedCount(),
-      searchTerm: this.searchTerm()
+      searchTerm: this.searchTerm(),
+      loading: this.loading()
     });
   });
   
   // Effect to save checked items to localStorage
   private checkedItemsEffect = effect(() => {
-    const checked = Array.from(this.checkedItems());
+    const checked = Array.from(this.checkedIds());
     localStorage.setItem('shopping-list-checked', JSON.stringify(checked));
   });
   
@@ -131,12 +149,17 @@ export class ShoppingListComponent {
     const savedChecked = localStorage.getItem('shopping-list-checked');
     if (savedChecked) {
       try {
-        const indices = JSON.parse(savedChecked);
-        this.checkedItems.set(new Set(indices));
+        const ids = JSON.parse(savedChecked);
+        this.checkedIds.set(new Set(ids));
       } catch (e) {
         console.error('Failed to restore checked items', e);
       }
     }
+  }
+  
+  ngOnInit() {
+    // Load shopping list from API on component init
+    this.store.dispatch(ShoppingListActions.loadShoppingList());
   }
   
   // Search methods
@@ -149,36 +172,36 @@ export class ShoppingListComponent {
   }
   
   // Selection methods
-  toggleSelection(index: number) {
-    const current = new Set(this.selectedIndices());
-    if (current.has(index)) {
-      current.delete(index);
+  toggleSelection(id: string) {
+    const current = new Set(this.selectedIds());
+    if (current.has(id)) {
+      current.delete(id);
     } else {
-      current.add(index);
+      current.add(id);
     }
-    this.selectedIndices.set(current);
+    this.selectedIds.set(current);
   }
   
   selectAll() {
-    const allIndices = new Set(
-      this.allIngredients().map((_, i) => i)
+    const allIds = new Set(
+      this.allIngredients().map(item => item.id)
     );
-    this.selectedIndices.set(allIndices);
+    this.selectedIds.set(allIds);
   }
   
   clearSelection() {
-    this.selectedIndices.set(new Set());
+    this.selectedIds.set(new Set());
   }
   
   // Checked/purchased methods
-  toggleChecked(index: number) {
-    const current = new Set(this.checkedItems());
-    if (current.has(index)) {
-      current.delete(index);
+  toggleChecked(id: string) {
+    const current = new Set(this.checkedIds());
+    if (current.has(id)) {
+      current.delete(id);
     } else {
-      current.add(index);
+      current.add(id);
     }
-    this.checkedItems.set(current);
+    this.checkedIds.set(current);
   }
   
   toggleHideChecked() {
@@ -187,36 +210,36 @@ export class ShoppingListComponent {
   
   clearChecked() {
     // Remove all checked items from the list
-    const checkedCount = this.checkedItems().size;
-    const checked = Array.from(this.checkedItems()).sort((a, b) => b - a);
-    checked.forEach(index => {
-      this.store.dispatch(ShoppingListActions.deleteIngredient({ index }));
+    const checkedCount = this.checkedIds().size;
+    const checked = Array.from(this.checkedIds());
+    checked.forEach(id => {
+      this.store.dispatch(ShoppingListActions.deleteIngredient({ id }));
     });
-    this.checkedItems.set(new Set());
+    this.checkedIds.set(new Set());
     this.notificationService.showSuccess(`${checkedCount} completed ${checkedCount === 1 ? 'item' : 'items'} removed!`);
   }
   
   // Edit methods
-  onEditItem(index: number) {
-    this.store.dispatch(ShoppingListActions.startEdit({ index }));
+  onEditItem(id: string) {
+    this.store.dispatch(ShoppingListActions.startEdit({ id }));
   }
 
-  onDeleteItem(event: Event, index: number) {
+  onDeleteItem(event: Event, id: string) {
     event.stopPropagation();
-    const ingredient = this.allIngredients()[index];
+    const ingredient = this.allIngredients().find(item => item.id === id);
     const ingredientName = ingredient?.name || 'Item';
     
-    this.store.dispatch(ShoppingListActions.deleteIngredient({ index }));
+    this.store.dispatch(ShoppingListActions.deleteIngredient({ id }));
     
     // Remove from checked items if it was checked
-    const checked = new Set(this.checkedItems());
-    checked.delete(index);
-    this.checkedItems.set(checked);
+    const checked = new Set(this.checkedIds());
+    checked.delete(id);
+    this.checkedIds.set(checked);
     
     // Remove from selection if it was selected
-    const selected = new Set(this.selectedIndices());
-    selected.delete(index);
-    this.selectedIndices.set(selected);
+    const selected = new Set(this.selectedIds());
+    selected.delete(id);
+    this.selectedIds.set(selected);
     
     this.notificationService.showInfo(`${ingredientName} removed from shopping list`);
   }
@@ -225,9 +248,9 @@ export class ShoppingListComponent {
   deleteSelected() {
     if (this.hasSelection() && confirm(`Delete ${this.selectedCount()} items?`)) {
       const count = this.selectedCount();
-      const indices = Array.from(this.selectedIndices()).sort((a, b) => b - a);
-      indices.forEach(index => {
-        this.store.dispatch(ShoppingListActions.deleteIngredient({ index }));
+      const ids = Array.from(this.selectedIds());
+      ids.forEach(id => {
+        this.store.dispatch(ShoppingListActions.deleteIngredient({ id }));
       });
       this.clearSelection();
       this.notificationService.showSuccess(`${count} ${count === 1 ? 'item' : 'items'} deleted!`);
@@ -238,8 +261,8 @@ export class ShoppingListComponent {
     if (this.hasItems() && confirm('Clear entire shopping list?')) {
       const totalCount = this.totalItems();
       this.store.dispatch(ShoppingListActions.clearIngredients());
-      this.selectedIndices.set(new Set());
-      this.checkedItems.set(new Set());
+      this.selectedIds.set(new Set());
+      this.checkedIds.set(new Set());
       this.notificationService.showSuccess(`Shopping list cleared! (${totalCount} ${totalCount === 1 ? 'item' : 'items'} removed)`);
     }
   }

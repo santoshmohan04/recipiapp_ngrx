@@ -1,57 +1,121 @@
-<nav class="navbar navbar-expand-sm bg-primary navbar-dark">
-  <div class="container-fluid">
-    <a routerLink="/" class="navbar-brand">Recipe Book</a>
-    
-    <!-- Theme Toggle Button (always visible) -->
-    <button
-      mat-icon-button
-      (click)="onToggleTheme()"
-      [attr.aria-label]="themeService.isDarkMode() ? 'Switch to light mode' : 'Switch to dark mode'"
-      class="theme-toggle"
-    >
-      <mat-icon>{{ themeService.isDarkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+<mat-toolbar color="primary" class="app-toolbar">
+  <!-- Logo/Brand -->
+  <button mat-button routerLink="/" class="brand-button">
+    <mat-icon>restaurant</mat-icon>
+    <span class="brand-text">Recipe Book</span>
+  </button>
+
+  <span class="spacer"></span>
+
+  <!-- Desktop Navigation (visible on larger screens) -->
+  <div class="desktop-nav" *ngIf="isAuthenticated">
+    <button mat-button routerLink="/recipes" routerLinkActive="active-link">
+      <mat-icon>menu_book</mat-icon>
+      <span>Recipes</span>
     </button>
     
-    <button
-      class="navbar-toggler"
-      type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#collapsibleNavbar"
-      *ngIf="isAuthenticated"
-    >
-      <span class="navbar-toggler-icon"></span>
+    <button mat-button routerLink="/favorites" routerLinkActive="active-link">
+      <mat-icon>favorite</mat-icon>
+      <span>Favorites</span>
     </button>
-    <div
-      class="collapse navbar-collapse justify-content-end"
-      id="collapsibleNavbar"
-      *ngIf="isAuthenticated"
-    >
-      <ul class="navbar-nav">
-        <li routerLinkActive="active" class="nav-item">
-          <a class="nav-link" routerLink="/recipes">Recipes</a>
-        </li>
-        <li routerLinkActive="active" class="nav-item">
-          <a class="nav-link" routerLink="/shopping-list">Shopping List</a>
-        </li>
-        <li class="nav-item" *ngIf="isAuthenticated">
-          <button mat-button [matMenuTriggerFor]="manageMenu" class="nav-link manage-menu-btn">
-            Manage
-          </button>
-          <mat-menu #manageMenu="matMenu">
-            <button mat-menu-item (click)="onSaveData()">
-              Save Data
-            </button>
-            <button mat-menu-item (click)="onFetchData()">
-              Fetch Data
-            </button>
-          </mat-menu>
-        </li>
-        <li *ngIf="isAuthenticated" class="nav-item">
-          <a style="cursor: pointer;" class="nav-link" (click)="onLogout()"
-            >Logout</a
-          >
-        </li>
-      </ul>
-    </div>
+
+    <button mat-button routerLink="/shopping-list" routerLinkActive="active-link">
+      <mat-icon>shopping_cart</mat-icon>
+      <span>Shopping List</span>
+    </button>
+
+    <!-- Manage Menu -->
+    <button mat-button [matMenuTriggerFor]="manageMenu">
+      <mat-icon>settings</mat-icon>
+      <span>Manage</span>
+    </button>
+    <mat-menu #manageMenu="matMenu">
+      <button mat-menu-item (click)="onSaveData()">
+        <mat-icon>cloud_upload</mat-icon>
+        <span>Save Data</span>
+      </button>
+      <button mat-menu-item (click)="onFetchData()">
+        <mat-icon>cloud_download</mat-icon>
+        <span>Fetch Data</span>
+      </button>
+    </mat-menu>
+
+    <!-- Profile Menu -->
+    <button mat-button [matMenuTriggerFor]="profileMenu">
+      <mat-icon>account_circle</mat-icon>
+      <span>Profile</span>
+    </button>
+    <mat-menu #profileMenu="matMenu">
+      <button mat-menu-item routerLink="/profile">
+        <mat-icon>person</mat-icon>
+        <span>My Profile</span>
+      </button>
+      <button mat-menu-item (click)="onLogout()">
+        <mat-icon>logout</mat-icon>
+        <span>Logout</span>
+      </button>
+    </mat-menu>
   </div>
-</nav>
+
+  <!-- Theme Toggle (always visible) -->
+  <button
+    mat-icon-button
+    (click)="onToggleTheme()"
+    [attr.aria-label]="themeService.isDarkMode() ? 'Switch to light mode' : 'Switch to dark mode'"
+    class="theme-toggle"
+  >
+    <mat-icon>{{ themeService.isDarkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+  </button>
+
+  <!-- Mobile Menu Button (hamburger) -->
+  <button
+    mat-icon-button
+    [matMenuTriggerFor]="mobileMenu"
+    class="mobile-menu-button"
+    *ngIf="isAuthenticated"
+  >
+    <mat-icon>menu</mat-icon>
+  </button>
+
+  <!-- Mobile Menu -->
+  <mat-menu #mobileMenu="matMenu" class="mobile-menu">
+    <button mat-menu-item routerLink="/recipes">
+      <mat-icon>menu_book</mat-icon>
+      <span>Recipes</span>
+    </button>
+    
+    <button mat-menu-item routerLink="/favorites">
+      <mat-icon>favorite</mat-icon>
+      <span>Favorites</span>
+    </button>
+
+    <button mat-menu-item routerLink="/shopping-list">
+      <mat-icon>shopping_cart</mat-icon>
+      <span>Shopping List</span>
+    </button>
+
+    <mat-divider></mat-divider>
+
+    <button mat-menu-item (click)="onSaveData()">
+      <mat-icon>cloud_upload</mat-icon>
+      <span>Save Data</span>
+    </button>
+
+    <button mat-menu-item (click)="onFetchData()">
+      <mat-icon>cloud_download</mat-icon>
+      <span>Fetch Data</span>
+    </button>
+
+    <mat-divider></mat-divider>
+
+    <button mat-menu-item routerLink="/profile">
+      <mat-icon>person</mat-icon>
+      <span>My Profile</span>
+    </button>
+
+    <button mat-menu-item (click)="onLogout()">
+      <mat-icon>logout</mat-icon>
+      <span>Logout</span>
+    </button>
+  </mat-menu>
+</mat-toolbar>
