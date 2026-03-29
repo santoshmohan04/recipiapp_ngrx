@@ -60,6 +60,10 @@ export class FavoritesComponent implements OnInit {
     this.store.dispatch(FavoritesActions.loadFavorites());
   }
   
+  getRecipeId(recipe: any): string {
+    return recipe.id || recipe._id;
+  }
+  
   onRemoveFavorite(recipeId: string) {
     this.store.dispatch(FavoritesActions.removeFavorite({ recipeId }));
   }

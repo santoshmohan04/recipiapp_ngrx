@@ -26,13 +26,13 @@
         <mat-nav-list>
           @for (favorite of favorites(); track favorite.favoriteId) {
             @if (favorite.recipe) {
-              <a mat-list-item [routerLink]="['/recipes', favorite.recipe.id || favorite.recipe._id]">
+              <a mat-list-item [routerLink]="['/recipes', getRecipeId(favorite.recipe)]">
                 <img matListItemAvatar [src]="favorite.recipe.imagePath" [alt]="favorite.recipe.name" />
                 <span matListItemTitle>{{ favorite.recipe.name }}</span>
                 <span matListItemLine>{{ favorite.recipe.description }}</span>
                 <button matListItemMeta mat-icon-button 
                         color="accent" 
-                        (click)="onRemoveFavorite(favorite.recipe.id || favorite.recipe._id); $event.preventDefault();"
+                        (click)="onRemoveFavorite(getRecipeId(favorite.recipe)); $event.preventDefault();"
                         matTooltip="Remove from favorites">
                   <mat-icon>favorite</mat-icon>
                 </button>
