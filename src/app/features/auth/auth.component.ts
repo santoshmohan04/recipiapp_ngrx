@@ -40,8 +40,13 @@ function passwordStrengthValidator(): ValidatorFn {
   };
 }
 
-function passwordMatchValidator(): ValidatorFn {
+function passwordMatchValidator(isLoginMode: () => boolean): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
+    // Skip validation in login mode
+    if (isLoginMode()) {
+      return null;
+    }
+    
     const password = control.get('password');
     const confirmPassword = control.get('confirmPassword');
     
@@ -86,7 +91,7 @@ export class AuthComponent {
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(8), passwordStrengthValidator()]],
     confirmPassword: ['']
-  }, { validators: passwordMatchValidator() });
+  }, { validators: passwordMatchValidator(() => this.isLoginMode()) });
 
   constructor() {
     // Rebuild form when switching modes
@@ -113,6 +118,8 @@ export class AuthComponent {
       this.authForm.get('lastName')?.updateValueAndValidity();
       this.authForm.get('password')?.updateValueAndValidity();
       this.authForm.get('confirmPassword')?.updateValueAndValidity();
+      // Update form-level validators (like passwordMatchValidator)
+      this.authForm.updateValueAndValidity();
     });
   }
 

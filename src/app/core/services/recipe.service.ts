@@ -43,6 +43,7 @@ export class RecipeService {
       id: apiRecipe._id || apiRecipe.id,
       name: apiRecipe.title || apiRecipe.name,
       imagePath: apiRecipe.imageUrl || apiRecipe.imagePath,
+      rating: apiRecipe.averageRating || apiRecipe.rating || 0,
       instructions: apiRecipe.instructions || []
     };
   }
@@ -55,8 +56,12 @@ export class RecipeService {
     this.isLoading.set(true);
     this.error.set(null);
     
-    return this.http.get<any[]>(this.apiUrl).pipe(
-      map(recipes => recipes.map(r => this.mapApiRecipe(r))),
+    return this.http.get<any>(this.apiUrl).pipe(
+      map(response => {
+        // Handle paginated response: { data: [...], page, totalPages, totalItems }
+        const recipes = response.data || response;
+        return recipes.map((r: any) => this.mapApiRecipe(r));
+      }),
       tap(recipes => {
         this.recipes.set(recipes);
         this.isLoading.set(false);
@@ -75,7 +80,11 @@ export class RecipeService {
     this.error.set(null);
     
     return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(
-      map(recipe => this.mapApiRecipe(recipe)),
+      map(response => {
+        // Handle both direct recipe response or wrapped in data property
+        const recipe = response.data || response;
+        return this.mapApiRecipe(recipe);
+      }),
       tap(recipe => {
         this.selectedRecipe.set(recipe);
         this.isLoading.set(false);
