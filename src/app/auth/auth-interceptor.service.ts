@@ -6,7 +6,7 @@ import {
   HttpEvent,
 } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { AuthService } from './auth.service';
+import { AuthService } from '../core/services/auth.service';
 
 /**
  * HTTP Interceptor to attach JWT token to outgoing requests

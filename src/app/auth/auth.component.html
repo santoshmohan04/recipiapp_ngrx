@@ -67,6 +67,34 @@
     <ng-template #signuptemp>
       <h2>SIGNUP</h2>
       <form [formGroup]="authForm" (ngSubmit)="onSubmit()">
+        <label for="firstName">First Name</label>
+        <input
+          type="text"
+          id="firstName"
+          class="form-control"
+          formControlName="firstName"
+        />
+        <div
+          *ngIf="authForm.get('firstName')?.invalid && (authForm.get('firstName')?.dirty || authForm.get('firstName')?.touched)"
+          class="text-danger"
+        >
+          <small *ngIf="authForm.get('firstName')?.errors?.['required']">First name is required.</small>
+        </div>
+
+        <label for="lastName">Last Name</label>
+        <input
+          type="text"
+          id="lastName"
+          class="form-control"
+          formControlName="lastName"
+        />
+        <div
+          *ngIf="authForm.get('lastName')?.invalid && (authForm.get('lastName')?.dirty || authForm.get('lastName')?.touched)"
+          class="text-danger"
+        >
+          <small *ngIf="authForm.get('lastName')?.errors?.['required']">Last name is required.</small>
+        </div>
+
         <label for="email">Email Address</label>
         <input
           type="email"

@@ -161,6 +161,9 @@ export class RecipeListComponent {
     if (savedViewMode) {
       this.viewMode.set(savedViewMode);
     }
+    
+    // Load recipes on initialization
+    this.store.dispatch({ type: '[Recipes API] Load Recipes' });
   }
   
   // Methods to update signals

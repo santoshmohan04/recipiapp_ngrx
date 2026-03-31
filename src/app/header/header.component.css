@@ -1,7 +1,59 @@
+.app-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.brand-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.25rem;
+  font-weight: 500;
+  padding: 0 16px;
+}
+
+.brand-button mat-icon {
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+}
+
+.brand-text {
+  font-family: 'Roboto', sans-serif;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.desktop-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.desktop-nav button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+}
+
+.desktop-nav button mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.active-link {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
 .theme-toggle {
-  color: white !important;
-  margin-left: auto;
-  margin-right: 1rem;
+  margin-left: 8px;
 }
 
 .theme-toggle mat-icon {
@@ -12,23 +64,53 @@
   transform: rotate(180deg);
 }
 
-.manage-menu-btn {
-  color: rgba(255, 255, 255, 0.55);
-  padding: 0.5rem 1rem;
-  text-transform: none;
-  font-size: 1rem;
-  font-weight: 400;
-  line-height: 1.5;
-  border-radius: 0;
+.mobile-menu-button {
+  display: none;
 }
 
-.manage-menu-btn:hover {
-  color: rgba(255, 255, 255, 0.75);
-}
-
-/* Ensure proper spacing on small screens */
-@media (max-width: 576px) {
-  .theme-toggle {
-    margin-right: 0.5rem;
+/* Mobile Responsive Styles */
+@media (max-width: 960px) {
+  .desktop-nav {
+    display: none;
   }
+
+  .mobile-menu-button {
+    display: flex;
+  }
+
+  .brand-text {
+    font-size: 1rem;
+  }
+
+  .brand-button mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .brand-button {
+    padding: 0 8px;
+    font-size: 1rem;
+  }
+
+  .theme-toggle {
+    margin-left: 4px;
+  }
+}
+
+/* Material Menu Customization */
+::ng-deep .mobile-menu {
+  min-width: 250px;
+}
+
+::ng-deep .mobile-menu .mat-mdc-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+::ng-deep .mobile-menu .mat-mdc-menu-item mat-icon {
+  margin-right: 0;
 }

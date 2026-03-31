@@ -34,6 +34,21 @@ export class RecipeService {
   // ============================================
 
   /**
+   * Map API response to Recipe model
+   * Convert _id to id for consistency
+   */
+  private mapApiRecipe(apiRecipe: any): Recipe {
+    return {
+      ...apiRecipe,
+      id: apiRecipe._id || apiRecipe.id,
+      name: apiRecipe.title || apiRecipe.name,
+      imagePath: apiRecipe.imageUrl || apiRecipe.imagePath,
+      rating: apiRecipe.averageRating || apiRecipe.rating || 0,
+      instructions: apiRecipe.instructions || []
+    };
+  }
+
+  /**
    * Get all recipes from the API
    * @returns Observable<Recipe[]>
    */
@@ -41,7 +56,12 @@ export class RecipeService {
     this.isLoading.set(true);
     this.error.set(null);
     
-    return this.http.get<Recipe[]>(this.apiUrl).pipe(
+    return this.http.get<any>(this.apiUrl).pipe(
+      map(response => {
+        // Handle paginated response: { data: [...], page, totalPages, totalItems }
+        const recipes = response.data || response;
+        return recipes.map((r: any) => this.mapApiRecipe(r));
+      }),
       tap(recipes => {
         this.recipes.set(recipes);
         this.isLoading.set(false);
@@ -59,7 +79,12 @@ export class RecipeService {
     this.isLoading.set(true);
     this.error.set(null);
     
-    return this.http.get<Recipe>(`${this.apiUrl}/${id}`).pipe(
+    return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(
+      map(response => {
+        // Handle both direct recipe response or wrapped in data property
+        const recipe = response.data || response;
+        return this.mapApiRecipe(recipe);
+      }),
       tap(recipe => {
         this.selectedRecipe.set(recipe);
         this.isLoading.set(false);

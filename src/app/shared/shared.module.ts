@@ -6,6 +6,8 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatDividerModule } from '@angular/material/divider';
 
 import { AlertComponent } from './alert/alert.component';
 import { LoadingSpinnerComponent } from './loading-spinner/loading-spinner.component';
@@ -29,7 +31,9 @@ import { LoggingService } from '../logging.service';
         MatMenuModule,
         MatProgressBarModule,
         MatProgressSpinnerModule,
-        MatCardModule
+        MatCardModule,
+        MatToolbarModule,
+        MatDividerModule
     ],
     exports: [
         AlertComponent,
@@ -43,7 +47,9 @@ import { LoggingService } from '../logging.service';
         MatMenuModule,
         MatProgressBarModule,
         MatProgressSpinnerModule,
-        MatCardModule
+        MatCardModule,
+        MatToolbarModule,
+        MatDividerModule
     ],
     providers: [LoggingService]
 })

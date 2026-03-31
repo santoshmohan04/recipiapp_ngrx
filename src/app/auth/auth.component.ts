@@ -30,6 +30,8 @@ export class AuthComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.authForm = this.fb.group({
+      firstName: [''],
+      lastName: [''],
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
       rememberMe: [false],
@@ -51,11 +53,25 @@ export class AuthComponent implements OnInit, OnDestroy {
 
   onSwitchMode() {
     this.isLoginMode = !this.isLoginMode;
+    
+    if (this.isLoginMode) {
+      // Login mode - remove name validators
+      this.authForm.get('firstName')?.clearValidators();
+      this.authForm.get('lastName')?.clearValidators();
+    } else {
+      // Signup mode - add name validators
+      this.authForm.get('firstName')?.setValidators([Validators.required]);
+      this.authForm.get('lastName')?.setValidators([Validators.required]);
+    }
+    
+    this.authForm.get('firstName')?.updateValueAndValidity();
+    this.authForm.get('lastName')?.updateValueAndValidity();
+    this.authForm.reset();
   }
 
   onSubmit() {
     if (this.authForm.invalid) return;
-    const { email, password, rememberMe } = this.authForm.value;
+    const { firstName, lastName, email, password, rememberMe } = this.authForm.value;
 
     if (rememberMe) {
       localStorage.setItem('email', email);
@@ -71,6 +87,8 @@ export class AuthComponent implements OnInit, OnDestroy {
     } else {
       this.store.dispatch(
         AuthActions.signupStart({
+          firstName: firstName,
+          lastName: lastName,
           email: email,
           password: password,
         })

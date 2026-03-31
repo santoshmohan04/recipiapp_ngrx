@@ -9,6 +9,10 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatListModule } from '@angular/material/list';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -16,6 +20,12 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import * as RecipeActions from '../../../store/recipes/recipe.actions';
 import * as RecipeSelectors from '../../../store/recipes/recipe.selectors';
 import * as ShoppingListActions from '../../../store/shopping-list/shopping-list.actions';
+import * as FavoritesActions from '../../../store/favorites/favorites.actions';
+import * as FavoritesSelectors from '../../../store/favorites/favorites.selectors';
+import * as CommentsActions from '../../../store/comments/comments.actions';
+import * as CommentsSelectors from '../../../store/comments/comments.selectors';
+import * as RatingsActions from '../../../store/ratings/ratings.actions';
+import * as RatingsSelectors from '../../../store/ratings/ratings.selectors';
 import { Recipe } from '../models/recipe.model';
 import { AsyncPipe } from '@angular/common';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -35,6 +45,10 @@ import { ResponsiveLayoutService } from '../../../core/services/responsive-layou
     MatListModule,
     MatDividerModule,
     MatProgressSpinnerModule,
+    MatFormFieldModule,
+    MatInputModule,
+    FormsModule,
+    CommonModule,
     AsyncPipe
   ],
   templateUrl: './recipe-detail.component.html',
@@ -58,6 +72,27 @@ export class RecipeDetailComponent implements OnInit, OnDestroy {
   recipe$!: Observable<Recipe | undefined>;
   recipeId: string = '';
   
+  // Favorite state
+  isFavorite = signal(false);
+  
+  // Comments and Ratings state
+  comments = toSignal(this.store.select(CommentsSelectors.selectAllComments), { initialValue: [] });
+  commentsLoading = toSignal(this.store.select(CommentsSelectors.selectCommentsLoading), { initialValue: false });
+  commentsError = toSignal(this.store.select(CommentsSelectors.selectCommentsError), { initialValue: null });
+  
+  ratings = toSignal(this.store.select(RatingsSelectors.selectAllRatings), { initialValue: [] });
+  userRating = toSignal(this.store.select(RatingsSelectors.selectUserRating), { initialValue: null });
+  ratingStats = toSignal(this.store.select(RatingsSelectors.selectRatingStats), { initialValue: null });
+  ratingsLoading = toSignal(this.store.select(RatingsSelectors.selectRatingsLoading), { initialValue: false });
+  
+  // New comment form
+  newCommentText = signal('');
+  isSubmittingComment = signal(false);
+  
+  // Editing comment
+  editingCommentId = signal<string | null>(null);
+  editCommentText = signal('');
+  
   // LOCAL UI STATE - Using Signals
   
   // Active tab index
@@ -66,6 +101,7 @@ export class RecipeDetailComponent implements OnInit, OnDestroy {
   // Loading states
   isDeleting = signal(false);
   isAddingToCart = signal(false);
+  isTogglingFavorite = signal(false);
   
   // Show confirmation dialog
   showDeleteConfirm = signal(false);
@@ -140,10 +176,20 @@ export class RecipeDetailComponent implements OnInit, OnDestroy {
       // Convert observable to signal
       const recipeSignal = toSignal(this.recipe$);
       // Update the computed to use the actual signal
+      
+      // Check if recipe is favorited
+      this.store.select(FavoritesSelectors.selectIsFavorite(this.recipeId))
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(isFav => this.isFavorite.set(isFav));
       (this as any).recipeSignal = recipeSignal;
       
       // Load recipe if not in store
       this.store.dispatch(RecipeActions.loadRecipe({ id: this.recipeId }));
+      
+      // Load comments and ratings
+      this.store.dispatch(CommentsActions.loadComments({ recipeId: this.recipeId }));
+      this.store.dispatch(RatingsActions.loadRatingStats({ recipeId: this.recipeId }));
+      this.store.dispatch(RatingsActions.loadUserRating({ recipeId: this.recipeId }));
     });
   }
   
@@ -211,5 +257,110 @@ export class RecipeDetailComponent implements OnInit, OnDestroy {
   
   cancelDelete() {
     this.showDeleteConfirm.set(false);
+  }
+  
+  async onToggleFavorite() {
+    if (!this.isTogglingFavorite()) {
+      this.isTogglingFavorite.set(true);
+      
+      // Simulate async operation
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      this.store.dispatch(
+        FavoritesActions.toggleFavorite({ 
+          recipeId: this.recipeId, 
+          isFavorite: this.isFavorite() 
+        })
+      );
+      
+      this.isTogglingFavorite.set(false);
+    }
+  }
+  
+  // ============================================
+  // Comments Methods
+  // ============================================
+  
+  onSubmitComment() {
+    const content = this.newCommentText().trim();
+    if (content && !this.isSubmittingComment()) {
+      this.isSubmittingComment.set(true);
+      
+      this.store.dispatch(
+        CommentsActions.createComment({ 
+          recipeId: this.recipeId, 
+          content 
+        })
+      );
+      
+      // Clear the form and reset state after a delay
+      setTimeout(() => {
+        this.newCommentText.set('');
+        this.isSubmittingComment.set(false);
+        this.notificationService.showSuccess('Comment added!');
+      }, 500);
+    }
+  }
+  
+  onEditComment(commentId: string, currentContent: string) {
+    this.editingCommentId.set(commentId);
+    this.editCommentText.set(currentContent);
+  }
+  
+  onSaveEditComment(commentId: string) {
+    const content = this.editCommentText().trim();
+    if (content) {
+      this.store.dispatch(
+        CommentsActions.updateComment({ 
+          id: commentId, 
+          content 
+        })
+      );
+      
+      this.editingCommentId.set(null);
+      this.editCommentText.set('');
+      this.notificationService.showSuccess('Comment updated!');
+    }
+  }
+  
+  onCancelEditComment() {
+    this.editingCommentId.set(null);
+    this.editCommentText.set('');
+  }
+  
+  onDeleteComment(commentId: string) {
+    if (confirm('Are you sure you want to delete this comment?')) {
+      this.store.dispatch(CommentsActions.deleteComment({ id: commentId }));
+      this.notificationService.showSuccess('Comment deleted!');
+    }
+  }
+  
+  // ============================================
+  // Ratings Methods
+  // ============================================
+  
+  onRateRecipe(rating: number) {
+    this.store.dispatch(
+      RatingsActions.createOrUpdateRating({ 
+        recipeId: this.recipeId, 
+        rating 
+      })
+    );
+    
+    this.notificationService.showSuccess(`Recipe rated ${rating} stars!`);
+    
+    // Reload stats to get updated average
+    setTimeout(() => {
+      this.store.dispatch(RatingsActions.loadRatingStats({ recipeId: this.recipeId }));
+    }, 500);
+  }
+  
+  getRatingStars(): number[] {
+    return [1, 2, 3, 4, 5];
+  }
+  
+  isStarFilled(star: number): boolean {
+    const userRating = this.userRating();
+    return userRating ? star <= userRating.rating : false;
   }
 }

@@ -6,7 +6,7 @@ import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
 import * as AuthActions from './auth.actions';
-import { AuthService, JwtAuthResponse } from '../auth.service';
+import { AuthService, JwtAuthResponse } from '../../core/services/auth.service';
 import { User } from '../user.model';
 import { NotificationService } from '../../core/services/notification.service';
 
@@ -27,9 +27,9 @@ export class AuthEffects {
     email: string,
     userId: string,
     token: string,
-    expiresIn: number
+    expiresInMs: number
   ) {
-    const expirationDate = new Date(new Date().getTime() + expiresIn * 1000);
+    const expirationDate = new Date(new Date().getTime() + expiresInMs);
     const user = new User(email, userId, token, expirationDate);
     
     // Store JWT token in localStorage
@@ -82,19 +82,22 @@ export class AuthEffects {
       ofType(AuthActions.signupStart),
       switchMap((action) =>
         this.authService.register({
+          firstName: action.firstName,
+          lastName: action.lastName,
           email: action.email,
           password: action.password,
         }).pipe(
           tap((resData) => {
-            // Set auto logout timer
-            this.authService.setLogoutTimer(resData.expiresIn * 1000);
+            // Set auto logout timer (7 days default)
+            const expiresInMs = 7 * 24 * 60 * 60 * 1000;
+            this.authService.setLogoutTimer(expiresInMs);
           }),
           map((resData) =>
             this.handleAuthentication(
               resData.user.email,
               resData.user.id,
-              resData.token,
-              resData.expiresIn
+              resData.access_token,
+              7 * 24 * 60 * 60 * 1000  // 7 days in milliseconds
             )
           ),
           catchError((error) => this.handleError(error))
@@ -115,15 +118,16 @@ export class AuthEffects {
           password: action.password,
         }).pipe(
           tap((resData) => {
-            // Set auto logout timer
-            this.authService.setLogoutTimer(resData.expiresIn * 1000);
+            // Set auto logout timer (7 days default)
+            const expiresInMs = 7 * 24 * 60 * 60 * 1000;
+            this.authService.setLogoutTimer(expiresInMs);
           }),
           map((resData) =>
             this.handleAuthentication(
               resData.user.email,
               resData.user.id,
-              resData.token,
-              resData.expiresIn
+              resData.access_token,
+              7 * 24 * 60 * 60 * 1000  // 7 days in milliseconds
             )
           ),
           catchError((error) => this.handleError(error))

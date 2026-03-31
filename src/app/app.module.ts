@@ -14,6 +14,10 @@ import { CoreModule } from './core.module';
 import { AuthEffects } from './auth/store/auth.effects';
 import { environment } from '../environments/environment';
 import { RecipeEffects } from './store/recipes/recipe.effects';
+import { ShoppingListEffects } from './store/shopping-list/shopping-list.effects';
+import { FavoritesEffects } from './store/favorites/favorites.effects';
+import { CommentsEffects } from './store/comments/comments.effects';
+import { RatingsEffects } from './store/ratings/ratings.effects';
 
 @NgModule({
   declarations: [AppComponent],
@@ -23,7 +27,7 @@ import { RecipeEffects } from './store/recipes/recipe.effects';
     HttpClientModule,
     AppRoutingModule,
     StoreModule.forRoot(fromApp.appReducer),
-    EffectsModule.forRoot([AuthEffects, RecipeEffects]),
+    EffectsModule.forRoot([AuthEffects, RecipeEffects, ShoppingListEffects, FavoritesEffects, CommentsEffects, RatingsEffects]),
     StoreDevtoolsModule.instrument({
       logOnly: environment.production,
       connectInZone: true,

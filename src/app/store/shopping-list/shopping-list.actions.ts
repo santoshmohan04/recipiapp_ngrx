@@ -1,38 +1,102 @@
 import { createAction, props } from '@ngrx/store';
 import { Ingredient } from '../../shared/models/ingredient.model';
+import { ShoppingListItem } from '../../core/services/shopping-list.service';
 
-// Add ingredient
+// Load shopping list from API
+export const loadShoppingList = createAction('[Shopping List API] Load Shopping List');
+
+export const loadShoppingListSuccess = createAction(
+  '[Shopping List API] Load Shopping List Success',
+  props<{ items: ShoppingListItem[] }>()
+);
+
+export const loadShoppingListFail = createAction(
+  '[Shopping List API] Load Shopping List Fail',
+  props<{ error: string }>()
+);
+
+// Add ingredient (with API)
 export const addIngredient = createAction(
   '[Shopping List] Add Ingredient',
   props<{ ingredient: Ingredient }>()
 );
 
-// Add ingredients
+export const addIngredientSuccess = createAction(
+  '[Shopping List API] Add Ingredient Success',
+  props<{ items: ShoppingListItem[] }>()
+);
+
+export const addIngredientFail = createAction(
+  '[Shopping List API] Add Ingredient Fail',
+  props<{ error: string }>()
+);
+
+// Add ingredients (with API)
 export const addIngredients = createAction(
   '[Shopping List] Add Ingredients',
   props<{ ingredients: Ingredient[] }>()
 );
 
-// Update ingredient
+export const addIngredientsSuccess = createAction(
+  '[Shopping List API] Add Ingredients Success',
+  props<{ items: ShoppingListItem[] }>()
+);
+
+export const addIngredientsFail = createAction(
+  '[Shopping List API] Add Ingredients Fail',
+  props<{ error: string }>()
+);
+
+// Update ingredient (with API)
 export const updateIngredient = createAction(
   '[Shopping List] Update Ingredient',
-  props<{ index: number; ingredient: Ingredient }>()
+  props<{ id: string; ingredient: Ingredient }>()
 );
 
-// Delete ingredient
+export const updateIngredientSuccess = createAction(
+  '[Shopping List API] Update Ingredient Success',
+  props<{ item: ShoppingListItem }>()
+);
+
+export const updateIngredientFail = createAction(
+  '[Shopping List API] Update Ingredient Fail',
+  props<{ error: string }>()
+);
+
+// Delete ingredient (with API)
 export const deleteIngredient = createAction(
   '[Shopping List] Delete Ingredient',
-  props<{ index: number }>()
+  props<{ id: string }>()
 );
 
-// Start edit
+export const deleteIngredientSuccess = createAction(
+  '[Shopping List API] Delete Ingredient Success',
+  props<{ id: string }>()
+);
+
+export const deleteIngredientFail = createAction(
+  '[Shopping List API] Delete Ingredient Fail',
+  props<{ error: string }>()
+);
+
+// Clear all ingredients (with API)
+export const clearIngredients = createAction('[Shopping List] Clear All Ingredients');
+
+export const clearIngredientsSuccess = createAction(
+  '[Shopping List API] Clear Ingredients Success'
+);
+
+export const clearIngredientsFail = createAction(
+  '[Shopping List API] Clear Ingredients Fail',
+  props<{ error: string }>()
+);
+
+// UI Actions (local only)
 export const startEdit = createAction(
   '[Shopping List] Start Edit',
-  props<{ index: number }>()
+  props<{ id: string }>()
 );
 
-// Stop edit
 export const stopEdit = createAction('[Shopping List] Stop Edit');
 
-// Clear all ingredients
-export const clearIngredients = createAction('[Shopping List] Clear All Ingredients');
+export const clearError = createAction('[Shopping List] Clear Error');

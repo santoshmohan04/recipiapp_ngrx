@@ -12,6 +12,7 @@ import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { map, shareReplay, filter } from 'rxjs/operators';
 import * as AuthActions from './store/auth/auth.actions';
+import * as FavoritesActions from './store/favorites/favorites.actions';
 
 @Component({
   selector: 'app-root',
@@ -47,6 +48,14 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.store.dispatch(AuthActions.autoLogin());
+    
+    // Load user data when logged in
+    this.authState$.subscribe(authState => {
+      if (authState.user) {
+        // Load favorites when user is authenticated
+        this.store.dispatch(FavoritesActions.loadFavorites());
+      }
+    });
     
     // Update page title based on route
     this.router.events.pipe(
