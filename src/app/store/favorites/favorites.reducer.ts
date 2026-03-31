@@ -29,7 +29,10 @@ export const favoritesReducer = createReducer(
   on(FavoritesActions.loadFavoritesSuccess, (state, action) => ({
     ...state,
     favorites: action.favorites,
-    favoriteRecipeIds: new Set(action.favorites.map(f => f.recipe.id || (f.recipe as any)._id)),
+    favoriteRecipeIds: new Set(action.favorites
+      .filter(f => f.recipe)
+      .map(f => f.recipe.id || (f.recipe as any)._id)
+      .filter(id => id)),
     loading: false,
     error: null,
   })),
@@ -48,7 +51,20 @@ export const favoritesReducer = createReducer(
   })),
   
   on(FavoritesActions.addFavoriteSuccess, (state, action) => {
-    const recipeId = action.favorite.recipe.id || (action.favorite.recipe as any)._id;
+    const recipe = action.favorite.recipe;
+    
+    if (!recipe) {
+      console.warn('addFavoriteSuccess: No recipe found in favorite', action.favorite);
+      return state;
+    }
+    
+    const recipeId = recipe.id || (recipe as any)._id;
+    
+    if (!recipeId) {
+      console.warn('addFavoriteSuccess: No recipe ID found', recipe);
+      return state;
+    }
+    
     const newFavoriteIds = new Set(state.favoriteRecipeIds);
     newFavoriteIds.add(recipeId);
     

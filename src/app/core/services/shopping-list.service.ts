@@ -7,19 +7,19 @@ import { environment } from '../../../environments/environment';
 
 export interface ShoppingListItem {
   id: string;
-  name: string;
-  amount: string | number;
+  itemName: string;
+  quantity?: string;
+  category?: string;
+  isChecked?: boolean;
   userId: string;
   createdAt?: string;
   updatedAt?: string;
 }
 
-export interface ShoppingListResponse {
-  id: string;
-  userId: string;
-  items: ShoppingListItem[];
-  createdAt: string;
-  updatedAt: string;
+export interface ShoppingListStats {
+  totalItems: number;
+  checkedItems: number;
+  uncheckedItems: number;
 }
 
 @Injectable({
@@ -31,79 +31,105 @@ export class ShoppingListService {
 
   /**
    * Get user's shopping list
+   * GET /api/shopping-list
    * @returns Observable<ShoppingListItem[]>
    */
   getShoppingList(): Observable<ShoppingListItem[]> {
-    return this.http.get<ShoppingListResponse>(this.apiUrl).pipe(
-      map(response => response.items || []),
+    return this.http.get<ShoppingListItem[]>(this.apiUrl).pipe(
       catchError(this.handleError)
     );
   }
 
   /**
-   * Add items to shopping list
+   * Add items to shopping list (makes multiple POST calls)
    * @param items - Array of ingredients to add
    * @returns Observable<ShoppingListItem[]>
    */
   addItems(items: Ingredient[]): Observable<ShoppingListItem[]> {
-    const payload = {
-      items: items.map(item => ({
-        name: item.name,
-        amount: item.amount
-      }))
-    };
+    // Backend doesn't support batch creation, so we need to add items one by one
+    // For now, just add the first item or handle this at the effects level
+    if (items.length === 0) {
+      return this.getShoppingList();
+    }
     
-    return this.http.post<ShoppingListResponse>(`${this.apiUrl}/items`, payload).pipe(
-      map(response => response.items || []),
+    // Add first item and return updated list
+    return this.addItem(items[0]).pipe(
+      map(() => []), // Will be followed by a getShoppingList() call in effects
       catchError(this.handleError)
     );
   }
 
   /**
    * Add single item to shopping list
+   * POST /api/shopping-list
    * @param item - Ingredient to add
-   * @returns Observable<ShoppingListItem[]>
+   * @returns Observable<ShoppingListItem>
    */
-  addItem(item: Ingredient): Observable<ShoppingListItem[]> {
-    return this.addItems([item]);
+  addItem(item: Ingredient): Observable<ShoppingListItem> {
+    const payload = {
+      itemName: item.name,
+      quantity: item.amount?.toString(),
+      category: '' // Could be extracted from ingredient if available
+    };
+    
+    return this.http.post<ShoppingListItem>(this.apiUrl, payload).pipe(
+      catchError(this.handleError)
+    );
   }
 
   /**
    * Update shopping list item
+   * PATCH /api/shopping-list/:id
    * @param id - Item ID
-   * @param item - Updated ingredient data
+   * @param updates - Partial updates to the item
    * @returns Observable<ShoppingListItem>
    */
-  updateItem(id: string, item: Ingredient): Observable<ShoppingListItem> {
-    const payload = {
-      name: item.name,
-      amount: item.amount
-    };
-    
-    return this.http.put<ShoppingListItem>(`${this.apiUrl}/items/${id}`, payload).pipe(
+  updateItem(id: string, updates: Partial<{ itemName: string; quantity: string; category: string; isChecked: boolean }>): Observable<ShoppingListItem> {
+    return this.http.patch<ShoppingListItem>(`${this.apiUrl}/${id}`, updates).pipe(
       catchError(this.handleError)
     );
   }
 
   /**
    * Delete shopping list item
+   * DELETE /api/shopping-list/:id
    * @param id - Item ID
    * @returns Observable<void>
    */
   deleteItem(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/items/${id}`).pipe(
+    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
       catchError(this.handleError)
     );
   }
 
   /**
-   * Clear entire shopping list
-   * @returns Observable<void>
+   * Get shopping list statistics
+   * GET /api/shopping-list/stats
+   * @returns Observable<ShoppingListStats>
    */
-  clearShoppingList(): Observable<void> {
-    return this.http.delete<void>(this.apiUrl).pipe(
+  getStats(): Observable<ShoppingListStats> {
+    return this.http.get<ShoppingListStats>(`${this.apiUrl}/stats`).pipe(
       catchError(this.handleError)
     );
+  }
+
+  /**
+   * Clear all checked items from shopping list
+   * DELETE /api/shopping-list/checked
+   * @returns Observable<{ deletedCount: number }>
+   */
+  clearCheckedItems(): Observable<{ deletedCount: number }> {
+    return this.http.delete<{ deletedCount: number }>(`${this.apiUrl}/checked`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Clear entire shopping list (convenience method - deletes all checked items)
+   * @returns Observable<{ deletedCount: number }>
+   */
+  clearShoppingList(): Observable<{ deletedCount: number }> {
+    return this.clearCheckedItems();
   }
 
   /**

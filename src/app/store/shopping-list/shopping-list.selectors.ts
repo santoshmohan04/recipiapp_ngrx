@@ -72,17 +72,17 @@ export const selectGroupedIngredients = createSelector(
     const grouped = new Map<string, { name: string; totalAmount: string; count: number; ids: string[] }>();
     
     items.forEach(item => {
-      const key = item.name.toLowerCase();
+      const key = item.itemName.toLowerCase();
       if (grouped.has(key)) {
         const existing = grouped.get(key)!;
         existing.count += 1;
         existing.ids.push(item.id);
         // Simple aggregation - just concatenate amounts
-        existing.totalAmount = `${existing.totalAmount}, ${item.amount}`;
+        existing.totalAmount = `${existing.totalAmount}, ${item.quantity || ''}`;
       } else {
         grouped.set(key, {
-          name: item.name,
-          totalAmount: String(item.amount),
+          name: item.itemName,
+          totalAmount: String(item.quantity || ''),
           count: 1,
           ids: [item.id]
         });

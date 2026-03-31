@@ -15,7 +15,7 @@ export class RatingsEffects {
       ofType(RatingsActions.loadRatings),
       switchMap(({ recipeId }) =>
         this.ratingsService.getRatingsByRecipe(recipeId).pipe(
-          map(ratings => RatingsActions.loadRatingsSuccess({ ratings })),
+          map(response => RatingsActions.loadRatingsSuccess({ ratings: response.ratings })),
           catchError(error =>
             of(RatingsActions.loadRatingsFailure({
               error: error.message || 'Failed to load ratings'

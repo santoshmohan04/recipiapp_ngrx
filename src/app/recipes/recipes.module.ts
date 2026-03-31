@@ -10,7 +10,6 @@ import { RecipeStartComponent } from './recipe-start/recipe-start.component';
 import { RecipeEditComponent } from './recipe-edit/recipe-edit.component';
 import { RecipesRoutingModule } from './recipes-routing.module';
 import { SharedModule } from '../shared/shared.module';
-import { HeaderComponent } from '../header/header.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +19,6 @@ import { HeaderComponent } from '../header/header.component';
     RecipeItemComponent,
     RecipeStartComponent,
     RecipeEditComponent,
-    HeaderComponent,
   ],
   imports: [
     RouterModule,

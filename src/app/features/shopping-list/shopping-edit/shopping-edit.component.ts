@@ -44,8 +44,8 @@ export class ShoppingEditComponent {
             this.editMode.set(true);
             this.editedItemId.set(state.editedItemId);
             this.ingredientForm.patchValue({
-              name: editedItem.name,
-              amount: editedItem.amount.toString()
+              name: editedItem.itemName,
+              amount: editedItem.quantity?.toString() || ''
             });
           }
         } else {

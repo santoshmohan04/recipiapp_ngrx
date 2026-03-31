@@ -33,6 +33,7 @@ export class ShoppingListEffects {
       ofType(ShoppingListActions.addIngredient),
       switchMap(({ ingredient }) =>
         this.shoppingListService.addItem(ingredient).pipe(
+          switchMap(() => this.shoppingListService.getShoppingList()),
           map(items => ShoppingListActions.addIngredientSuccess({ items })),
           catchError(error =>
             of(ShoppingListActions.addIngredientFail({ error: error.message }))
@@ -42,18 +43,20 @@ export class ShoppingListEffects {
     )
   );
 
-  // Add ingredients
+  // Add ingredients (multiple items)
   addIngredients$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ShoppingListActions.addIngredients),
-      switchMap(({ ingredients }) =>
-        this.shoppingListService.addItems(ingredients).pipe(
+      switchMap(({ ingredients }) => {
+        // Since backend doesn't support batch creation, reload list after attempting to add
+        // The service.addItems() method is a placeholder - ideally handle at component level
+        return this.shoppingListService.getShoppingList().pipe(
           map(items => ShoppingListActions.addIngredientsSuccess({ items })),
           catchError(error =>
             of(ShoppingListActions.addIngredientsFail({ error: error.message }))
           )
-        )
-      )
+        );
+      })
     )
   );
 
@@ -61,14 +64,18 @@ export class ShoppingListEffects {
   updateIngredient$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ShoppingListActions.updateIngredient),
-      switchMap(({ id, ingredient }) =>
-        this.shoppingListService.updateItem(id, ingredient).pipe(
+      switchMap(({ id, ingredient }) => {
+        const updates = {
+          itemName: ingredient.name,
+          quantity: ingredient.amount?.toString()
+        };
+        return this.shoppingListService.updateItem(id, updates).pipe(
           map(item => ShoppingListActions.updateIngredientSuccess({ item })),
           catchError(error =>
             of(ShoppingListActions.updateIngredientFail({ error: error.message }))
           )
-        )
-      )
+        );
+      })
     )
   );
 

@@ -107,10 +107,7 @@ export class RecipeDetailComponent implements OnInit, OnDestroy {
   showDeleteConfirm = signal(false);
   
   // Convert recipe observable to signal for easier template usage
-  recipeSignal = computed(() => {
-    // This will be set in ngOnInit
-    return undefined as Recipe | undefined;
-  });
+  recipeSignal = signal<Recipe | undefined>(undefined);
   
   // Computed properties based on recipe data
   totalIngredients = computed(() => {
@@ -173,15 +170,15 @@ export class RecipeDetailComponent implements OnInit, OnDestroy {
       // Select recipe by ID using selector
       this.recipe$ = this.store.select(RecipeSelectors.selectRecipeById(this.recipeId));
       
-      // Convert observable to signal
-      const recipeSignal = toSignal(this.recipe$);
-      // Update the computed to use the actual signal
+      // Subscribe to recipe$ and update the signal
+      this.recipe$.pipe(takeUntil(this.destroy$)).subscribe(recipe => {
+        this.recipeSignal.set(recipe);
+      });
       
       // Check if recipe is favorited
       this.store.select(FavoritesSelectors.selectIsFavorite(this.recipeId))
         .pipe(takeUntil(this.destroy$))
         .subscribe(isFav => this.isFavorite.set(isFav));
-      (this as any).recipeSignal = recipeSignal;
       
       // Load recipe if not in store
       this.store.dispatch(RecipeActions.loadRecipe({ id: this.recipeId }));
