@@ -2,7 +2,8 @@
 @use '@angular/material' as mat;
 
 /* Include core Material styles */
-@include mat.core();
+@include mat.elevation-classes();
+@include mat.app-background();
 
 /* Define Light Theme - simplified approach */
 $light-theme: mat.define-theme((
@@ -106,7 +107,7 @@ a {
 
 /* Snackbar Notification Styles */
 .success-snackbar {
-  --mdc-snackbar-container-color: #4caf50 !important;
+  --mat-snackbar-container-color: #4caf50 !important;
   --mat-snack-bar-button-color: #ffffff !important;
 }
 
@@ -115,7 +116,7 @@ a {
 }
 
 .error-snackbar {
-  --mdc-snackbar-container-color: #f44336 !important;
+  --mat-snackbar-container-color: #f44336 !important;
   --mat-snack-bar-button-color: #ffffff !important;
 }
 
@@ -124,7 +125,7 @@ a {
 }
 
 .warning-snackbar {
-  --mdc-snackbar-container-color: #ff9800 !important;
+  --mat-snackbar-container-color: #ff9800 !important;
   --mat-snack-bar-button-color: #ffffff !important;
 }
 
@@ -133,7 +134,7 @@ a {
 }
 
 .info-snackbar {
-  --mdc-snackbar-container-color: #2196f3 !important;
+  --mat-snackbar-container-color: #2196f3 !important;
   --mat-snack-bar-button-color: #ffffff !important;
 }
 
