@@ -1,0 +1,22 @@
+<mat-toolbar color="primary">
+  <span class="title">Recipe Book</span>
+  <span class="spacer"></span>
+  
+  @if (authState$ | async; as authState) {
+    @if (authState.user) {
+      <button mat-button routerLink="/recipes">Recipes</button>
+      <button mat-button routerLink="/shopping-list">Shopping List</button>
+      <button mat-button [matMenuTriggerFor]="menu">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="onLogout()">
+          <mat-icon>logout</mat-icon>
+          <span>Logout</span>
+        </button>
+      </mat-menu>
+    } @else {
+      <button mat-button routerLink="/auth">Authenticate</button>
+    }
+  }
+</mat-toolbar>

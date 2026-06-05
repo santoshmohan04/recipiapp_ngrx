@@ -1,0 +1,43 @@
+<div class="profile-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-icon mat-card-avatar color="primary">account_circle</mat-icon>
+      <mat-card-title>Profile</mat-card-title>
+      <mat-card-subtitle>Manage your account settings</mat-card-subtitle>
+    </mat-card-header>
+    
+    <mat-card-content>
+      @if (authState$ | async; as authState) {
+        @if (authState.user) {
+          <div class="profile-info">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Email</mat-label>
+              <input matInput [value]="authState.user.email" readonly />
+            </mat-form-field>
+            
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>User ID</mat-label>
+              <input matInput [value]="authState.user.id" readonly />
+            </mat-form-field>
+            
+            <div class="actions">
+              <button mat-raised-button color="primary">
+                <mat-icon>edit</mat-icon>
+                Edit Profile
+              </button>
+              <button mat-stroked-button color="warn">
+                <mat-icon>lock</mat-icon>
+                Change Password
+              </button>
+            </div>
+          </div>
+        } @else {
+          <div class="empty-state">
+            <mat-icon>person_off</mat-icon>
+            <p>Please log in to view your profile</p>
+          </div>
+        }
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

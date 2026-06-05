@@ -1,62 +1,54 @@
-import { Action } from '@ngrx/store';
+import { createAction, props } from '@ngrx/store';
 
-export const LOGIN_START = '[Auth] Login Start';
-export const AUTHENTICATE_SUCCESS = '[Auth] Login';
-export const AUTHENTICATE_FAIL = '[Auth] Login Fail';
-export const SIGNUP_START = '[Auth] Signup Start';
-export const CLEAR_ERROR = '[Auth] Clear Error';
-export const AUTO_LOGIN = '[Auth] Auto Login';
-export const LOGOUT = '[Auth] Logout';
+/**
+ * Login action - triggers JWT authentication
+ */
+export const loginStart = createAction(
+  '[Auth] Login Start',
+  props<{ email: string; password: string }>()
+);
 
-export class AuthenticateSuccess implements Action {
-  readonly type = AUTHENTICATE_SUCCESS;
+/**
+ * Successful authentication - stores user data and token
+ */
+export const authenticateSuccess = createAction(
+  '[Auth] Login',
+  props<{
+    email: string;
+    userId: string;
+    token: string;
+    expirationDate: Date;
+    redirect: boolean;
+  }>()
+);
 
-  constructor(
-    public payload: {
-      email: string;
-      userId: string;
-      token: string;
-      expirationDate: Date;
-      redirect: boolean;
-    }
-  ) {}
-}
+/**
+ * Authentication failure - displays error message
+ */
+export const authenticateFail = createAction(
+  '[Auth] Login Fail',
+  props<{ errorMessage: string }>()
+);
 
-export class Logout implements Action {
-  readonly type = LOGOUT;
-}
+/**
+ * Signup/Register action - creates new user account
+ */
+export const signupStart = createAction(
+  '[Auth] Signup Start',
+  props<{ email: string; password: string; name?: string }>()
+);
 
-export class LoginStart implements Action {
-  readonly type = LOGIN_START;
+/**
+ * Clear authentication error
+ */
+export const clearError = createAction('[Auth] Clear Error');
 
-  constructor(public payload: { email: string; password: string }) {}
-}
+/**
+ * Auto login on app initialization
+ */
+export const autoLogin = createAction('[Auth] Auto Login');
 
-export class AuthenticateFail implements Action {
-  readonly type = AUTHENTICATE_FAIL;
-
-  constructor(public payload: string) {}
-}
-
-export class SignupStart implements Action {
-  readonly type = SIGNUP_START;
-
-  constructor(public payload: { email: string; password: string }) {}
-}
-
-export class ClearError implements Action {
-  readonly type = CLEAR_ERROR;
-}
-
-export class AutoLogin implements Action {
-  readonly type = AUTO_LOGIN;
-}
-
-export type AuthActions =
-  | AuthenticateSuccess
-  | Logout
-  | LoginStart
-  | AuthenticateFail
-  | SignupStart
-  | ClearError
-  | AutoLogin;
+/**
+ * Logout - clears user data and JWT token
+ */
+export const logout = createAction('[Auth] Logout');

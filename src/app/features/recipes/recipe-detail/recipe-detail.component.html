@@ -1,0 +1,182 @@
+<div class="recipe-detail-container" [class.mobile-layout]="isMobile()" [class.tablet-layout]="isTablet()">
+  @if (recipe$ | async; as recipe) {
+    <!-- Hero Section with Image and Title -->
+    <div class="recipe-hero">
+      <img [src]="recipe.imagePath" [alt]="recipe.name" class="hero-image" />
+      <div class="hero-overlay">
+        <div class="hero-content">
+          <h1 class="recipe-title">{{ recipe.name }}</h1>
+          <p class="recipe-description">{{ recipe.description }}</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Recipe Meta Info Section -->
+    <mat-card class="meta-card">
+      <mat-card-content>
+        <div class="meta-info">
+          <div class="meta-item">
+            <mat-icon>star</mat-icon>
+            <div class="meta-content">
+              <span class="meta-label">Rating</span>
+              <div class="rating-stars">
+                @for (star of getRatingArray(recipe.rating || 0); track $index) {
+                  <mat-icon [class.filled]="star === 1" class="star-icon">
+                    {{ star === 1 ? 'star' : 'star_border' }}
+                  </mat-icon>
+                }
+                <span class="rating-value">{{ recipe.rating || 0 }}/5</span>
+              </div>
+            </div>
+          </div>
+          
+          <mat-divider [vertical]="true" class="vertical-divider"></mat-divider>
+          
+          <div class="meta-item">
+            <mat-icon>schedule</mat-icon>
+            <div class="meta-content">
+              <span class="meta-label">Cooking Time</span>
+              <span class="meta-value">{{ recipe.cookingTime || 30 }} minutes</span>
+            </div>
+          </div>
+          
+          <mat-divider [vertical]="true" class="vertical-divider"></mat-divider>
+          
+          <div class="meta-item">
+            <mat-icon>restaurant</mat-icon>
+            <div class="meta-content">
+              <span class="meta-label">Ingredients</span>
+              <span class="meta-value">{{ recipe.ingredients.length }} items</span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+    
+    <!-- Action Buttons -->
+    <div class="action-buttons" [class.mobile-stack]="isMobile()">
+      <button mat-raised-button color="primary" (click)="onAddToShoppingList(recipe)">
+        <mat-icon>shopping_cart</mat-icon>
+        @if (!isMobile()) {
+          <span>Add to Shopping List</span>
+        } @else {
+          <span>Add to Cart</span>
+        }
+      </button>
+      <button mat-raised-button color="accent" (click)="onEditRecipe()">
+        <mat-icon>edit</mat-icon>
+        @if (!isMobile()) {
+          <span>Edit Recipe</span>
+        } @else {
+          <span>Edit</span>
+        }
+      </button>
+      <button mat-raised-button color="warn" (click)="onDeleteRecipe()">
+        <mat-icon>delete</mat-icon>
+        @if (!isMobile()) {
+          <span>Delete Recipe</span>
+        } @else {
+          <span>Delete</span>
+        }
+      </button>
+    </div>
+    
+    <!-- Tabbed Content Section -->
+    <mat-card class="tabs-card">
+      <mat-tab-group animationDuration="300ms" [dynamicHeight]="true">
+        <!-- Ingredients Tab -->
+        <mat-tab label="Ingredients">
+          <ng-template mat-tab-label>
+            <mat-icon class="tab-icon">list</mat-icon>
+            Ingredients
+          </ng-template>
+          
+          <div class="tab-content">
+            <mat-list>
+              @for (ingredient of recipe.ingredients; track $index; let last = $last) {
+                <mat-list-item>
+                  <mat-icon matListItemIcon>check_circle</mat-icon>
+                  <div matListItemTitle class="ingredient-name">{{ ingredient.name }}</div>
+                  <div matListItemLine class="ingredient-amount">Amount: {{ ingredient.amount }}</div>
+                </mat-list-item>
+                @if (!last) {
+                  <mat-divider></mat-divider>
+                }
+              }
+              @if (recipe.ingredients.length === 0) {
+                <div class="empty-message">
+                  <mat-icon>info</mat-icon>
+                  <p>No ingredients added yet</p>
+                </div>
+              }
+            </mat-list>
+          </div>
+        </mat-tab>
+        
+        <!-- Instructions Tab -->
+        <mat-tab label="Instructions">
+          <ng-template mat-tab-label>
+            <mat-icon class="tab-icon">receipt_long</mat-icon>
+            Instructions
+          </ng-template>
+          
+          <div class="tab-content">
+            @if (recipe.instructions && recipe.instructions.length > 0) {
+              <mat-list>
+                @for (instruction of recipe.instructions; track $index; let last = $last) {
+                  <mat-list-item class="instruction-item">
+                    <div matListItemIcon class="step-number">{{ $index + 1 }}</div>
+                    <div matListItemTitle class="instruction-text">{{ instruction }}</div>
+                  </mat-list-item>
+                  @if (!last) {
+                    <mat-divider></mat-divider>
+                  }
+                }
+              </mat-list>
+            } @else {
+              <div class="empty-message">
+                <mat-icon>info</mat-icon>
+                <p>No instructions available</p>
+              </div>
+            }
+          </div>
+        </mat-tab>
+        
+        <!-- Comments Tab -->
+        <mat-tab label="Comments">
+          <ng-template mat-tab-label>
+            <mat-icon class="tab-icon">comment</mat-icon>
+            Comments
+          </ng-template>
+          
+          <div class="tab-content">
+            <div class="comments-section">
+              <div class="empty-message">
+                <mat-icon>forum</mat-icon>
+                <p>No comments yet. Be the first to comment!</p>
+                <button mat-raised-button color="primary">
+                  <mat-icon>add_comment</mat-icon>
+                  Add Comment
+                </button>
+              </div>
+            </div>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-card>
+    
+  } @else {
+    <mat-card class="error-card">
+      <mat-card-content>
+        <div class="empty-message">
+          <mat-icon>error_outline</mat-icon>
+          <h3>Recipe not found</h3>
+          <p>The recipe you're looking for doesn't exist</p>
+          <button mat-raised-button color="primary" routerLink="/recipes">
+            Back to Recipes
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

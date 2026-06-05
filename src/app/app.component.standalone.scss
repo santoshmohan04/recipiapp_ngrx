@@ -1,0 +1,83 @@
+.sidenav-container {
+  height: 100vh;
+}
+
+.sidenav {
+  width: 250px;
+  box-shadow: 3px 0 6px rgba(0, 0, 0, 0.1);
+}
+
+.sidenav-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  height: auto;
+  min-height: 64px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.logo-icon {
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+}
+
+.sidenav mat-nav-list {
+  padding-top: 1rem;
+}
+
+.sidenav a[mat-list-item] {
+  margin: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.sidenav a[mat-list-item]:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.sidenav a[mat-list-item].active {
+  background-color: rgba(63, 81, 181, 0.1);
+  color: #3f51b5;
+}
+
+.sidenav a[mat-list-item].active mat-icon {
+  color: #3f51b5;
+}
+
+mat-divider {
+  margin: 1rem 0;
+}
+
+.top-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.toolbar-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.main-content {
+  padding: 1.5rem;
+  min-height: calc(100vh - 64px);
+  background-color: #fafafa;
+}
+
+@media (max-width: 599px) {
+  .main-content {
+    padding: 1rem;
+  }
+  
+  .sidenav {
+    width: 280px;
+  }
+}

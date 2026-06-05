@@ -9,6 +9,7 @@ import * as AuthActions from './auth/store/auth.actions';
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
+  standalone:false
 })
 export class AppComponent implements OnInit {
   constructor(
@@ -17,7 +18,7 @@ export class AppComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.store.dispatch(new AuthActions.AutoLogin());
+    this.store.dispatch(AuthActions.autoLogin());
     this.loggingService.printLog('Hello from AppComponent ngOnInit');
   }
 }

@@ -10,6 +10,7 @@ import * as fromApp from '../store/app.reducer';
   selector: 'app-shopping-list',
   templateUrl: './shopping-list.component.html',
   styleUrls: ['./shopping-list.component.css'],
+  standalone:false
 })
 export class ShoppingListComponent implements OnInit {
   ingredients: Observable<{ ingredients: Ingredient[] }>;
@@ -21,6 +22,6 @@ export class ShoppingListComponent implements OnInit {
   }
 
   onEditItem(index: number) {
-    this.store.dispatch(new ShoppingListActions.StartEdit(index));
+    this.store.dispatch(ShoppingListActions.startEdit({index}));
   }
 }

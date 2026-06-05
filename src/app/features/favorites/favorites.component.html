@@ -1,0 +1,36 @@
+<div class="favorites-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-icon mat-card-avatar color="accent">favorite</mat-icon>
+      <mat-card-title>Your Favorite Recipes</mat-card-title>
+      <mat-card-subtitle>Save and organize your favorite recipes</mat-card-subtitle>
+    </mat-card-header>
+    
+    <mat-card-content>
+      @if (recipeState$ | async; as recipeState) {
+        @if (recipeState.recipes.length > 0) {
+          <mat-nav-list>
+            @for (recipe of recipeState.recipes; track $index) {
+              <a mat-list-item [routerLink]="['/recipes', $index]">
+                <img matListItemAvatar [src]="recipe.imagePath" [alt]="recipe.name" />
+                <span matListItemTitle>{{ recipe.name }}</span>
+                <span matListItemLine>{{ recipe.description }}</span>
+                <mat-icon matListItemMeta color="accent">favorite</mat-icon>
+              </a>
+              <mat-divider></mat-divider>
+            }
+          </mat-nav-list>
+        } @else {
+          <div class="empty-state">
+            <mat-icon>favorite_border</mat-icon>
+            <h3>No favorites yet</h3>
+            <p>Start adding recipes to your favorites!</p>
+            <button mat-raised-button color="primary" routerLink="/recipes">
+              Browse Recipes
+            </button>
+          </div>
+        }
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

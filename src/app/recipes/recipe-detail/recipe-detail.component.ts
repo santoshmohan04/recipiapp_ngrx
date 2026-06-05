@@ -12,6 +12,7 @@ import * as ShoppingListActions from '../../shopping-list/store/shopping-list.ac
   selector: 'app-recipe-detail',
   templateUrl: './recipe-detail.component.html',
   styleUrls: ['./recipe-detail.component.css'],
+  standalone: false
 })
 export class RecipeDetailComponent implements OnInit {
   recipe: Recipe;
@@ -47,7 +48,7 @@ export class RecipeDetailComponent implements OnInit {
   onAddToShoppingList() {
     // this.recipeService.addIngredientsToShoppingList(this.recipe.ingredients);
     this.store.dispatch(
-      new ShoppingListActions.AddIngredients(this.recipe.ingredients)
+      ShoppingListActions.addIngredients({ingredients:this.recipe.ingredients})
     );
   }
 
@@ -58,7 +59,7 @@ export class RecipeDetailComponent implements OnInit {
 
   onDeleteRecipe() {
     // this.recipeService.deleteRecipe(this.id);
-    this.store.dispatch(new RecipesActions.DeleteRecipe(this.id));
+    this.store.dispatch(RecipesActions.deleteRecipe({index:this.id}));
     this.router.navigate(['/recipes']);
   }
 }

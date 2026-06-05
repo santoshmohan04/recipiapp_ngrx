@@ -1,0 +1,164 @@
+<div class="shopping-list-container" [class.mobile-layout]="isMobile()">
+  <!-- Add New Ingredient Section -->
+  <mat-card class="add-ingredient-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>add_shopping_cart</mat-icon>
+        {{ editingIndex() !== -1 ? 'Edit Ingredient' : 'Add New Ingredient' }}
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <app-shopping-edit></app-shopping-edit>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Shopping List Section -->
+  <mat-card class="shopping-list-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>shopping_basket</mat-icon>
+        Shopping List
+      </mat-card-title>
+      <mat-card-subtitle>
+        @if (totalItems() > 0) {
+          <span class="stats">
+            {{ totalItems() }} items • {{ checkedCount() }} completed
+          </span>
+        }
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      @if (hasItems()) {
+        <!-- Search Filter -->
+        <div class="search-section">
+          <mat-form-field class="search-field" appearance="outline">
+            <mat-label>Search ingredients</mat-label>
+            <input 
+              matInput 
+              [value]="searchTerm()" 
+              (input)="onSearchChange($any($event.target).value)"
+              placeholder="Type to filter...">
+            <mat-icon matPrefix>search</mat-icon>
+            @if (searchTerm()) {
+              <button matSuffix mat-icon-button (click)="clearSearch()">
+                <mat-icon>clear</mat-icon>
+              </button>
+            }
+          </mat-form-field>
+
+          <!-- Quick Actions -->
+          <div class="quick-actions">
+            @if (hasCheckedItems()) {
+              <button 
+                mat-raised-button 
+                color="warn" 
+                (click)="clearChecked()">
+                <mat-icon>delete_sweep</mat-icon>
+                @if (!isMobile()) {
+                  <span>Remove Completed ({{ checkedCount() }})</span>
+                } @else {
+                  <span>Remove ({{ checkedCount() }})</span>
+                }
+              </button>
+            }
+            
+            @if (totalItems() > 1) {
+              <button 
+                mat-button 
+                (click)="toggleHideChecked()">
+                <mat-icon>{{ hideChecked() ? 'visibility' : 'visibility_off' }}</mat-icon>
+                {{ hideChecked() ? 'Show' : 'Hide' }} Completed
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Ingredients List -->
+        @if (filteredIngredients().length > 0) {
+          <mat-list class="ingredients-list">
+            @for (ingredient of filteredIngredients(); track $index) {
+              <mat-list-item 
+                class="ingredient-item"
+                [class.completed]="checkedItems().has($index)"
+                [class.editing]="editingIndex() === $index">
+                
+                <!-- Completion Checkbox -->
+                <mat-checkbox
+                  class="completion-checkbox"
+                  [checked]="checkedItems().has($index)"
+                  (change)="toggleChecked($index)"
+                  (click)="$event.stopPropagation()">
+                </mat-checkbox>
+
+                <!-- Ingredient Details -->
+                <div class="ingredient-content">
+                  <span 
+                    class="ingredient-name" 
+                    [class.strikethrough]="checkedItems().has($index)">
+                    {{ ingredient.name }}
+                  </span>
+                  <span class="ingredient-amount">
+                    {{ ingredient.amount }}
+                  </span>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="item-actions">
+                  <button 
+                    mat-icon-button 
+                    color="primary"
+                    (click)="onEditItem($index)"
+                    [disabled]="editingIndex() === $index"
+                    matTooltip="Edit ingredient">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  
+                  <button 
+                    mat-icon-button 
+                    color="warn"
+                    (click)="onDeleteItem($event, $index)"
+                    matTooltip="Delete ingredient">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </mat-list-item>
+              
+              @if ($index < filteredIngredients().length - 1) {
+                <mat-divider></mat-divider>
+              }
+            }
+          </mat-list>
+
+          <!-- Clear All Button -->
+          <div class="list-footer">
+            <button 
+              mat-stroked-button 
+              color="warn" 
+              (click)="clearAll()">
+              <mat-icon>clear_all</mat-icon>
+              Clear All Items
+            </button>
+          </div>
+        } @else {
+          <!-- No Results State -->
+          <div class="empty-state">
+            <mat-icon>search_off</mat-icon>
+            <h3>No ingredients found</h3>
+            <p>Try adjusting your search or filters</p>
+            <button mat-raised-button color="primary" (click)="clearSearch()">
+              Clear Search
+            </button>
+          </div>
+        }
+      } @else {
+        <!-- Empty List State -->
+        <div class="empty-state">
+          <mat-icon class="large-icon">shopping_cart</mat-icon>
+          <h3>Your shopping list is empty</h3>
+          <p>Add ingredients above to get started</p>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>
