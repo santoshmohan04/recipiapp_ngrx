@@ -70,6 +70,14 @@ mat-divider {
   padding: 1.5rem;
   min-height: calc(100vh - 64px);
   background-color: #fafafa;
+  box-sizing: border-box;
+
+  /* Auth route: let the auth component own its full-viewport layout */
+  &.auth-page {
+    padding: 0;
+    min-height: 0;
+    background-color: transparent;
+  }
 }
 
 @media (max-width: 599px) {

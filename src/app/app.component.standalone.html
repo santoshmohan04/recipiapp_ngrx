@@ -1,4 +1,6 @@
+@if (authState$ | async; as authState) {
 <mat-sidenav-container class="sidenav-container">
+  @if (showNav()) {
   <mat-sidenav
     #drawer
     class="sidenav"
@@ -30,7 +32,6 @@
       
       <mat-divider></mat-divider>
       
-      @if (authState$ | async; as authState) {
         @if (authState.user) {
           <a mat-list-item routerLink="/profile" routerLinkActive="active" (click)="closeSidenavOnMobile()">
             <mat-icon matListItemIcon>person</mat-icon>
@@ -47,12 +48,13 @@
             <span matListItemTitle>Login</span>
           </a>
         }
-      }
     </mat-nav-list>
   </mat-sidenav>
-  
+  } <!-- /showNav -->
+
   <mat-sidenav-content>
     <mat-toolbar color="primary" class="top-toolbar">
+      @if(authState.user){
       <button
         type="button"
         aria-label="Toggle sidenav"
@@ -60,12 +62,12 @@
         (click)="drawer.toggle()">
         <mat-icon>menu</mat-icon>
       </button>
-      
+    }
       <span class="toolbar-title">{{ pageTitle() }}</span>
       
       <span class="spacer"></span>
       
-      @if (authState$ | async; as authState) {
+      
         @if (authState.user) {
           <button mat-icon-button [matMenuTriggerFor]="userMenu">
             <mat-icon>account_circle</mat-icon>
@@ -81,11 +83,11 @@
             </button>
           </mat-menu>
         }
-      }
     </mat-toolbar>
     
-    <main class="main-content">
+    <main class="main-content" [class.auth-page]="isAuthRoute()">
       <router-outlet></router-outlet>
     </main>
   </mat-sidenav-content>
 </mat-sidenav-container>
+}

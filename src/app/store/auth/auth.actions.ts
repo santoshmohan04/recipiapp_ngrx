@@ -26,7 +26,7 @@ export const loginFail = createAction(
 // Signup actions
 export const signupStart = createAction(
   '[Auth] Signup Start',
-  props<{ email: string; password: string }>()
+  props<{ email: string; password: string; firstName: string; lastName: string }>()
 );
 
 export const signupSuccess = createAction(
