@@ -34,6 +34,8 @@ export class AuthEffects {
       id: response.user.id,
       token: response.access_token,
       tokenExpirationDate,
+      firstName: response.user.firstName,
+      lastName: response.user.lastName,
     };
     localStorage.setItem(
       'userData',
@@ -42,6 +44,8 @@ export class AuthEffects {
         id: user.id,
         _token: user.token,
         _tokenExpirationDate: user.tokenExpirationDate.toISOString(),
+        firstName: user.firstName,
+        lastName: user.lastName,
       })
     );
     this.authService.setLogoutTimer(expiresInMs);
@@ -121,6 +125,8 @@ export class AuthEffects {
           id: parsedData.id,
           token: parsedData._token,
           tokenExpirationDate: new Date(parsedData._tokenExpirationDate),
+          firstName: parsedData.firstName,
+          lastName: parsedData.lastName,
         };
 
         if (loadedUser.token) {

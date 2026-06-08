@@ -40,6 +40,7 @@ export class AppComponent implements OnInit {
 
   pageTitle = signal('Recipe Book');
   isAuthRoute = signal(false);
+  isRecipesListRoute = signal(false);
   authState$ = this.store.select('auth');
 
   /** True only when authenticated AND not on the /auth route */
@@ -54,15 +55,17 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.store.dispatch(AuthActions.autoLogin());
     
-    // Update page title and auth-route flag on navigation
+    // Update page title and route flags on navigation
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
       this.isAuthRoute.set(this.router.url.includes('/auth'));
+      this.isRecipesListRoute.set(/^\/recipes(\?|$)/.test(this.router.url));
       this.updatePageTitle();
     });
-    // Set initial value synchronously
+    // Set initial values synchronously
     this.isAuthRoute.set(this.router.url.includes('/auth'));
+    this.isRecipesListRoute.set(/^\/recipes(\?|$)/.test(this.router.url));
   }
   
   private updatePageTitle() {

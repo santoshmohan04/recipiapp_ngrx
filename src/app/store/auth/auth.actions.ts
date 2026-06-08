@@ -5,6 +5,8 @@ export interface AuthUser {
   id: string;
   token: string;
   tokenExpirationDate: Date;
+  firstName?: string;
+  lastName?: string;
 }
 
 // Login actions

@@ -1,9 +1,12 @@
 .sidenav-container {
   height: 100vh;
+  overflow: hidden; // prevent the drawer from leaking a horizontal scrollbar
 }
 
 .sidenav {
   width: 250px;
+  max-width: 100vw;  // never wider than the viewport
+  overflow-x: hidden; // clip nav items that would otherwise break out
   box-shadow: 3px 0 6px rgba(0, 0, 0, 0.1);
 }
 
@@ -66,11 +69,22 @@ mat-divider {
   flex: 1 1 auto;
 }
 
+.toolbar-new-recipe-btn {
+  margin-right: 0.5rem;
+  color: white;
+  border-color: rgba(255, 255, 255, 0.7);
+
+  mat-icon {
+    margin-right: 4px;
+  }
+}
+
 .main-content {
   padding: 1.5rem;
   min-height: calc(100vh - 64px);
   background-color: #fafafa;
   box-sizing: border-box;
+  overflow-x: hidden; // contain overflowing child content within the scroll region
 
   /* Auth route: let the auth component own its full-viewport layout */
   &.auth-page {
@@ -80,11 +94,17 @@ mat-divider {
   }
 }
 
+// Suppress horizontal scroll on the Material-generated sidenav content host element
+// Scoped to this component so it doesn't bleed globally
+:host ::ng-deep .mat-sidenav-content {
+  overflow-x: hidden !important;
+}
+
 @media (max-width: 599px) {
   .main-content {
     padding: 1rem;
   }
-  
+
   .sidenav {
     width: 280px;
   }

@@ -1,4 +1,4 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -6,6 +6,7 @@ import { MatListModule } from '@angular/material/list';
 import { RouterModule } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { AsyncPipe } from '@angular/common';
+import { selectAllRecipes } from '../../store/recipes/recipe.selectors';
 
 @Component({
   selector: 'app-favorites',
@@ -23,6 +24,6 @@ import { AsyncPipe } from '@angular/common';
 })
 export class FavoritesComponent {
   private store = inject(Store);
-  
-  recipeState$ = this.store.select('recipes');
+
+  recipes$ = this.store.select(selectAllRecipes);
 }

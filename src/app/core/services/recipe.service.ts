@@ -32,8 +32,16 @@ export class RecipeService {
    */
   getRecipes(): Observable<Recipe[]> {
     this.error.set(null);
-    
-    return this.http.get<Recipe[]>(this.apiUrl).pipe(
+
+    // Pass a high limit to retrieve all recipes in one request.
+    // The API returns { data: Recipe[], page, totalPages, totalItems }.
+    // MongoDB documents use `_id`; we normalise it to `id` so the NgRx
+    // entity adapter (which keys on `recipe.id`) works correctly.
+    return this.http.get<{ data: any[] } | any[]>(`${this.apiUrl}?limit=200`).pipe(
+      map(response => {
+        const raw = Array.isArray(response) ? response : response.data;
+        return raw.map((r: any) => ({ ...r, id: r.id ?? r._id }));
+      }),
       catchError(this.handleError.bind(this))
     );
   }
