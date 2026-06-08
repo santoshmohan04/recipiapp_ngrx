@@ -5,6 +5,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, tap, map } from 'rxjs/operators';
 import { Recipe } from '../../features/recipes/models/recipe.model';
 import { environment } from '../../../environments/environment';
+import { selectAllRecipes, selectRecipesLoading } from '../../store/recipes/recipe.selectors';
 
 @Injectable({
   providedIn: 'root'
@@ -16,18 +17,10 @@ export class RecipeService {
   private apiUrl = `${environment.apiUrl}/recipes`;
   
   // Signals for reactive state
-  recipes = signal<Recipe[]>([]);
+  recipes = this.store.selectSignal(selectAllRecipes);
   selectedRecipe = signal<Recipe | null>(null);
-  isLoading = signal(false);
+  isLoading = this.store.selectSignal(selectRecipesLoading);
   error = signal<string | null>(null);
-
-  constructor() {
-    // Subscribe to recipe state from store
-    this.store.select('recipes').subscribe(state => {
-      this.recipes.set(state.recipes);
-      this.isLoading.set(state.loading);
-    });
-  }
 
   // ============================================
   // HTTP API Methods for NestJS Backend
@@ -38,13 +31,16 @@ export class RecipeService {
    * @returns Observable<Recipe[]>
    */
   getRecipes(): Observable<Recipe[]> {
-    this.isLoading.set(true);
     this.error.set(null);
-    
-    return this.http.get<Recipe[]>(this.apiUrl).pipe(
-      tap(recipes => {
-        this.recipes.set(recipes);
-        this.isLoading.set(false);
+
+    // Pass a high limit to retrieve all recipes in one request.
+    // The API returns { data: Recipe[], page, totalPages, totalItems }.
+    // MongoDB documents use `_id`; we normalise it to `id` so the NgRx
+    // entity adapter (which keys on `recipe.id`) works correctly.
+    return this.http.get<{ data: any[] } | any[]>(`${this.apiUrl}?limit=200`).pipe(
+      map(response => {
+        const raw = Array.isArray(response) ? response : response.data;
+        return raw.map((r: any) => ({ ...r, id: r.id ?? r._id }));
       }),
       catchError(this.handleError.bind(this))
     );
@@ -56,13 +52,11 @@ export class RecipeService {
    * @returns Observable<Recipe>
    */
   getRecipeById(id: string | number): Observable<Recipe> {
-    this.isLoading.set(true);
     this.error.set(null);
     
     return this.http.get<Recipe>(`${this.apiUrl}/${id}`).pipe(
       tap(recipe => {
         this.selectedRecipe.set(recipe);
-        this.isLoading.set(false);
       }),
       catchError(this.handleError.bind(this))
     );
@@ -74,15 +68,9 @@ export class RecipeService {
    * @returns Observable<Recipe>
    */
   createRecipe(recipe: Recipe): Observable<Recipe> {
-    this.isLoading.set(true);
     this.error.set(null);
     
     return this.http.post<Recipe>(this.apiUrl, recipe).pipe(
-      tap(newRecipe => {
-        const currentRecipes = this.recipes();
-        this.recipes.set([...currentRecipes, newRecipe]);
-        this.isLoading.set(false);
-      }),
       catchError(this.handleError.bind(this))
     );
   }
@@ -94,20 +82,9 @@ export class RecipeService {
    * @returns Observable<Recipe>
    */
   updateRecipe(id: string | number, recipe: Recipe): Observable<Recipe> {
-    this.isLoading.set(true);
     this.error.set(null);
     
     return this.http.put<Recipe>(`${this.apiUrl}/${id}`, recipe).pipe(
-      tap(updatedRecipe => {
-        const currentRecipes = this.recipes();
-        const index = currentRecipes.findIndex((r: any) => r.id === id);
-        if (index !== -1) {
-          const updated = [...currentRecipes];
-          updated[index] = updatedRecipe;
-          this.recipes.set(updated);
-        }
-        this.isLoading.set(false);
-      }),
       catchError(this.handleError.bind(this))
     );
   }
@@ -118,15 +95,9 @@ export class RecipeService {
    * @returns Observable<void>
    */
   deleteRecipe(id: string | number): Observable<void> {
-    this.isLoading.set(true);
     this.error.set(null);
     
     return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
-      tap(() => {
-        const currentRecipes = this.recipes();
-        this.recipes.set(currentRecipes.filter((r: any) => r.id !== id));
-        this.isLoading.set(false);
-      }),
       catchError(this.handleError.bind(this))
     );
   }
@@ -141,8 +112,6 @@ export class RecipeService {
    * @returns Observable that throws an error
    */
   private handleError(error: HttpErrorResponse): Observable<never> {
-    this.isLoading.set(false);
-    
     let errorMessage = 'An unknown error occurred!';
     
     if (error.error instanceof ErrorEvent) {

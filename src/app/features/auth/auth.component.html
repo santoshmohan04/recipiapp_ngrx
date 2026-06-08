@@ -1,58 +1,99 @@
 <div class="auth-container">
   <mat-card class="auth-card">
-    <mat-card-header>
+
+    <!-- Progress bar anchored flush to the top card edge; 0-height when idle -->
+    <div class="progress-bar-slot" [attr.aria-busy]="isLoading()">
+      @if (isLoading()) {
+        <mat-progress-bar mode="indeterminate" />
+      }
+    </div>
+
+    <mat-card-header class="card-header">
       <mat-card-title>{{ isLoginMode() ? 'Login' : 'Sign Up' }}</mat-card-title>
     </mat-card-header>
-    
-    <mat-card-content>
-      @if (authState$ | async; as authState) {
-        @if (authState.loading) {
-          <app-loading-spinner [diameter]="40"></app-loading-spinner>
-        } @else {
-          @if (authState.authError) {
+
+    <mat-card-content class="card-body">
+      <form [formGroup]="authForm" (ngSubmit)="onSubmit()" novalidate>
+        <!-- Name fields (Sign Up only) -->
+        @if (!isLoginMode()) {
+          <div class="name-row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>First Name</mat-label>
+              <input matInput type="text" formControlName="firstName" autocomplete="given-name" />
+              @if ((firstNameCtrl.touched || firstNameCtrl.dirty) && firstNameCtrl.hasError('required')) {
+                <mat-error>First name is required</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Last Name</mat-label>
+              <input matInput type="text" formControlName="lastName" autocomplete="family-name" />
+              @if ((lastNameCtrl.touched || lastNameCtrl.dirty) && lastNameCtrl.hasError('required')) {
+                <mat-error>Last name is required</mat-error>
+              }
+            </mat-form-field>
+          </div>
+        }
+
+        <!-- Email -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email</mat-label>
+          <input matInput type="email" formControlName="email" autocomplete="email" />
+          @if ((emailCtrl.touched || emailCtrl.dirty) && emailCtrl.hasError('required')) {
+            <mat-error>Email is required</mat-error>
+          }
+          @if ((emailCtrl.touched || emailCtrl.dirty) && emailCtrl.hasError('email')) {
+            <mat-error>Enter a valid email address</mat-error>
+          }
+        </mat-form-field>
+
+        <!-- Password -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Password</mat-label>
+          <input
+            matInput
+            [type]="hidePassword() ? 'password' : 'text'"
+            formControlName="password"
+            [autocomplete]="isLoginMode() ? 'current-password' : 'new-password'"
+          />
+          <button mat-icon-button matSuffix type="button"
+            (click)="togglePasswordVisibility()"
+            [attr.aria-label]="hidePassword() ? 'Show password' : 'Hide password'">
+            <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if ((passwordCtrl.touched || passwordCtrl.dirty) && passwordCtrl.hasError('required')) {
+            <mat-error>Password is required</mat-error>
+          }
+          @if ((passwordCtrl.touched || passwordCtrl.dirty) && passwordCtrl.hasError('minlength')) {
+            <mat-error>Password must be at least 6 characters</mat-error>
+          }
+        </mat-form-field>
+
+        <!-- Error slot: always occupies its structural position; min-height prevents shift -->
+        <div class="error-slot" role="alert" aria-live="polite">
+          @if (authError()) {
             <div class="error-message">
-              <mat-icon color="warn">error</mat-icon>
-              {{ authState.authError }}
+              <mat-icon color="warn">error_outline</mat-icon>
+              <span>{{ authError() }}</span>
             </div>
           }
-          
-          <form [formGroup]="authForm" (ngSubmit)="onSubmit()">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Email</mat-label>
-              <input matInput type="email" formControlName="email" />
-              @if (authForm.get('email')?.hasError('required')) {
-                <mat-error>Email is required</mat-error>
-              }
-              @if (authForm.get('email')?.hasError('email')) {
-                <mat-error>Invalid email format</mat-error>
-              }
-            </mat-form-field>
-            
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Password</mat-label>
-              <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="password" />
-              <button mat-icon-button matSuffix type="button" (click)="togglePasswordVisibility()">
-                <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
-              </button>
-              @if (authForm.get('password')?.hasError('required')) {
-                <mat-error>Password is required</mat-error>
-              }
-              @if (authForm.get('password')?.hasError('minlength')) {
-                <mat-error>Password must be at least 6 characters</mat-error>
-              }
-            </mat-form-field>
-            
-            <div class="button-group">
-              <button mat-raised-button color="primary" type="submit" [disabled]="!authForm.valid">
-                {{ isLoginMode() ? 'Login' : 'Sign Up' }}
-              </button>
-              <button mat-button type="button" (click)="onSwitchMode()">
-                Switch to {{ isLoginMode() ? 'Sign Up' : 'Login' }}
-              </button>
-            </div>
-          </form>
-        }
-      }
+        </div>
+
+        <div class="button-group">
+          <button mat-flat-button color="primary" type="submit"
+            class="full-width submit-btn"
+            [disabled]="authForm.invalid || isLoading()">
+            {{ isLoginMode() ? 'Login' : 'Sign Up' }}
+          </button>
+          <button mat-button color="accent" type="button"
+            class="full-width switch-btn"
+            [disabled]="isLoading()"
+            (click)="onSwitchMode()">
+            Switch to {{ isLoginMode() ? 'Sign Up' : 'Login' }}
+          </button>
+        </div>
+      </form>
     </mat-card-content>
+
   </mat-card>
 </div>

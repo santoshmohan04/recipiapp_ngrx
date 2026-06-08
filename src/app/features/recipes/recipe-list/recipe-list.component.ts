@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal, effect } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { DecimalPipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
@@ -12,9 +13,10 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Store } from '@ngrx/store';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Recipe } from '../models/recipe.model';
-import { selectAllRecipes, selectRecipesLoading } from '../../../store/recipes/recipe.selectors';
+import { take } from 'rxjs/operators';
+import { selectAllRecipes, selectRecipesLoading, selectRecipeStats, selectRecipesLoaded } from '../../../store/recipes/recipe.selectors';
 import { ResponsiveLayoutService } from '../../../core/services/responsive-layout.service';
+import * as RecipeActions from '../../../store/recipes/recipe.actions';
 
 type SortOption = 'name' | 'rating' | 'cookingTime';
 type ViewMode = 'grid' | 'list';
@@ -24,6 +26,7 @@ type ViewMode = 'grid' | 'list';
   standalone: true,
   imports: [
     RouterModule,
+    DecimalPipe,
     MatCardModule,
     MatButtonModule,
     MatListModule,
@@ -45,6 +48,9 @@ export class RecipeListComponent {
   // Convert observables to signals for reactive composition
   private allRecipes = toSignal(this.store.select(selectAllRecipes), { initialValue: [] });
   loading = toSignal(this.store.select(selectRecipesLoading), { initialValue: false });
+  recipeStats = toSignal(this.store.select(selectRecipeStats), {
+    initialValue: { total: 0, averageRating: 0, averageCookingTime: 0, easyCount: 0, mediumCount: 0, hardCount: 0 }
+  });
   
   // Responsive layout signals
   deviceType = this.responsiveLayout.deviceType;
@@ -142,7 +148,6 @@ export class RecipeListComponent {
   private viewModeEffect = effect(() => {
     const mode = this.viewMode();
     localStorage.setItem('recipe-view-mode', mode);
-    console.log('View mode changed to:', mode);
   });
   
   // Difficulty options
@@ -161,6 +166,15 @@ export class RecipeListComponent {
     if (savedViewMode) {
       this.viewMode.set(savedViewMode);
     }
+
+    // Dispatch load only if recipes haven't been fetched yet
+    this.store.select(selectRecipesLoaded).pipe(
+      take(1)
+    ).subscribe(loaded => {
+      if (!loaded) {
+        this.store.dispatch(RecipeActions.loadRecipes());
+      }
+    });
   }
   
   // Methods to update signals
