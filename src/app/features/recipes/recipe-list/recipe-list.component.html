@@ -1,18 +1,10 @@
 <div class="recipe-list-container">
-  <div class="header">
-    <h2>Recipes</h2>
-    <button mat-raised-button color="primary" routerLink="/recipes/new">
-      <mat-icon>add</mat-icon>
-      New Recipe
-    </button>
-  </div>
-  
   <!-- Filters and Controls Section -->
   <mat-card class="controls-card">
     <mat-card-content>
       <div class="controls-row" [class.mobile-layout]="isMobile()">
         <!-- Search -->
-        <mat-form-field class="search-field" appearance="outline">
+        <mat-form-field class="search-field" appearance="outline" subscriptSizing="dynamic">
           <mat-label>Search recipes</mat-label>
           <input 
             matInput 
@@ -29,7 +21,7 @@
         
         @if (!isMobile()) {
           <!-- Difficulty Filter -->
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>Difficulty</mat-label>
             <mat-select [value]="selectedDifficulty()" (valueChange)="onDifficultyChange($event)">
               @for (difficulty of difficultyOptions; track difficulty) {
@@ -42,7 +34,7 @@
           </mat-form-field>
           
           <!-- Rating Filter -->
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>Min Rating</mat-label>
             <mat-select [value]="minRating()" (valueChange)="onRatingChange($event)">
               <mat-option [value]="0">All Ratings</mat-option>
@@ -55,7 +47,7 @@
         }
         
         <!-- Sort By -->
-        <mat-form-field appearance="outline" [class.full-width-mobile]="isMobile()">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" [class.full-width-mobile]="isMobile()">
           <mat-label>Sort By</mat-label>
           <mat-select [value]="sortBy()" (valueChange)="onSortChange($event)">
             @for (option of sortOptions; track option.value) {
@@ -67,14 +59,16 @@
         
         <!-- View Mode Toggle -->
         @if (!isMobile()) {
-          <mat-button-toggle-group [value]="viewMode()" (change)="onViewModeChange($event.value)">
-            <mat-button-toggle value="grid">
-              <mat-icon>grid_view</mat-icon>
-            </mat-button-toggle>
-            <mat-button-toggle value="list">
-              <mat-icon>view_list</mat-icon>
-            </mat-button-toggle>
-          </mat-button-toggle-group>
+          <div class="toggle-group-wrapper">
+            <mat-button-toggle-group [value]="viewMode()" (change)="onViewModeChange($event.value)">
+              <mat-button-toggle value="grid">
+                <mat-icon>grid_view</mat-icon>
+              </mat-button-toggle>
+              <mat-button-toggle value="list">
+                <mat-icon>view_list</mat-icon>
+              </mat-button-toggle>
+            </mat-button-toggle-group>
+          </div>
         }
         
         <!-- Clear Filters -->
@@ -91,7 +85,7 @@
       <!-- Mobile Filters (Collapsed) -->
       @if (isMobile()) {
         <div class="mobile-filters">
-          <mat-form-field appearance="outline" class="filter-field">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="filter-field">
             <mat-label>Difficulty</mat-label>
             <mat-select [value]="selectedDifficulty()" (valueChange)="onDifficultyChange($event)">
               @for (difficulty of difficultyOptions; track difficulty) {
@@ -103,7 +97,7 @@
             <mat-icon matPrefix>tune</mat-icon>
           </mat-form-field>
           
-          <mat-form-field appearance="outline" class="filter-field">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="filter-field">
             <mat-label>Min Rating</mat-label>
             <mat-select [value]="minRating()" (valueChange)="onRatingChange($event)">
               <mat-option [value]="0">All Ratings</mat-option>
@@ -121,12 +115,18 @@
         <mat-chip-set>
           <mat-chip highlighted>
             <mat-icon matChipAvatar>restaurant_menu</mat-icon>
-            {{ recipeCount() }} of {{ totalRecipes() }} recipes
+            {{ recipeCount() }} of {{ recipeStats().total }} recipes
           </mat-chip>
           @if (recipeCount() > 0) {
             <mat-chip>
               <mat-icon matChipAvatar>star</mat-icon>
               Avg Rating: {{ averageRating() }}
+            </mat-chip>
+          }
+          @if (recipeStats().averageCookingTime > 0) {
+            <mat-chip>
+              <mat-icon matChipAvatar>schedule</mat-icon>
+              Avg Cook: {{ recipeStats().averageCookingTime | number:'1.0-0' }} min
             </mat-chip>
           }
           @if (hasFilters()) {
@@ -221,10 +221,10 @@
           } @else {
             <h3>No recipes yet</h3>
             <p>Create your first recipe!</p>
-            <button mat-raised-button color="primary" routerLink="/recipes/new">
+            <a mat-fab extended color="primary" routerLink="/recipes/new">
               <mat-icon>add</mat-icon>
               Create Recipe
-            </button>
+            </a>
           }
         </mat-card-content>
       </mat-card>

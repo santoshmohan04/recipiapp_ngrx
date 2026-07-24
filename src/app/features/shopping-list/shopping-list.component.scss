@@ -84,13 +84,14 @@ $desktop-min: 1200px;
   // Search Section
   .search-section {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
     gap: 16px;
     margin-bottom: 24px;
 
     .search-field {
-      width: 100%;
-      
+      flex: 1;
+
       mat-icon[matPrefix] {
         margin-right: 8px;
         color: #666;
@@ -100,12 +101,22 @@ $desktop-min: 1200px;
     .quick-actions {
       display: flex;
       gap: 12px;
-      flex-wrap: wrap;
+      flex-shrink: 0;
+      align-items: center;
 
       button {
         mat-icon {
           margin-right: 6px;
         }
+      }
+    }
+
+    @media (max-width: $mobile-max) {
+      flex-direction: column;
+      align-items: stretch;
+
+      .quick-actions {
+        flex-wrap: wrap;
       }
     }
   }
@@ -115,12 +126,12 @@ $desktop-min: 1200px;
     padding: 0;
     
     .ingredient-item {
-      height: auto !important;
-      min-height: 72px;
-      padding: 12px 16px;
+      min-height: 56px;
+      padding: 8px 16px;
       display: flex;
+      flex-direction: row;
       align-items: center;
-      gap: 16px;
+      gap: 12px;
       transition: all 0.3s ease;
       cursor: pointer;
 
@@ -152,15 +163,20 @@ $desktop-min: 1200px;
       .ingredient-content {
         flex: 1;
         display: flex;
-        flex-direction: column;
-        gap: 4px;
-        min-width: 0; // Allow text truncation
+        flex-direction: row;
+        align-items: center;
+        gap: 16px;
+        min-width: 0;
 
         .ingredient-name {
+          flex: 1;
           font-size: 1rem;
           font-weight: 500;
           color: #333;
           transition: all 0.3s ease;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
 
           &.strikethrough {
             text-decoration: line-through;
@@ -171,6 +187,9 @@ $desktop-min: 1200px;
         .ingredient-amount {
           font-size: 0.875rem;
           color: #666;
+          white-space: nowrap;
+          min-width: 48px;
+          text-align: right;
         }
       }
 
