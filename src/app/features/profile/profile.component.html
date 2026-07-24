@@ -16,8 +16,13 @@
             </mat-form-field>
             
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>User ID</mat-label>
-              <input matInput [value]="authState.user.id" readonly />
+              <mat-label>First Name</mat-label>
+              <input matInput [value]="authState.user.firstName || ''" readonly />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Last Name</mat-label>
+              <input matInput [value]="authState.user.lastName || ''" readonly />
             </mat-form-field>
             
             <div class="actions">

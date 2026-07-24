@@ -32,7 +32,7 @@
       @if (hasItems()) {
         <!-- Search Filter -->
         <div class="search-section">
-          <mat-form-field class="search-field" appearance="outline">
+          <mat-form-field class="search-field" appearance="outline" subscriptSizing="dynamic">
             <mat-label>Search ingredients</mat-label>
             <input 
               matInput 
@@ -76,13 +76,13 @@
 
         <!-- Ingredients List -->
         @if (filteredIngredients().length > 0) {
-          <mat-list class="ingredients-list">
-            @for (ingredient of filteredIngredients(); track ingredient.id) {
-              <mat-list-item 
+          <div class="ingredients-list">
+            @for (ingredient of filteredIngredients(); track $index) {
+              <div
                 class="ingredient-item"
-                [class.completed]="checkedIds().has(ingredient.id)"
-                [class.editing]="editedItemId() === ingredient.id">
-                
+                [class.completed]="checkedItems().has($index)"
+                [class.editing]="editingIndex() === $index">
+
                 <!-- Completion Checkbox -->
                 <mat-checkbox
                   class="completion-checkbox"
@@ -93,42 +93,39 @@
 
                 <!-- Ingredient Details -->
                 <div class="ingredient-content">
-                  <span 
-                    class="ingredient-name" 
-                    [class.strikethrough]="checkedIds().has(ingredient.id)">
+                  <span
+                    class="ingredient-name"
+                    [class.strikethrough]="checkedItems().has($index)">
                     {{ ingredient.name }}
                   </span>
-                  <span class="ingredient-amount">
-                    {{ ingredient.amount }}
-                  </span>
+                  <span class="ingredient-amount">{{ ingredient.amount }}</span>
                 </div>
 
                 <!-- Action Buttons -->
                 <div class="item-actions">
-                  <button 
-                    mat-icon-button 
+                  <button
+                    mat-icon-button
                     color="primary"
                     (click)="onEditItem(ingredient.id)"
                     [disabled]="editedItemId() === ingredient.id"
                     matTooltip="Edit ingredient">
                     <mat-icon>edit</mat-icon>
                   </button>
-                  
-                  <button 
-                    mat-icon-button 
+                  <button
+                    mat-icon-button
                     color="warn"
                     (click)="onDeleteItem($event, ingredient.id)"
                     matTooltip="Delete ingredient">
                     <mat-icon>delete</mat-icon>
                   </button>
                 </div>
-              </mat-list-item>
-              
+              </div>
+
               @if ($index < filteredIngredients().length - 1) {
                 <mat-divider></mat-divider>
               }
             }
-          </mat-list>
+          </div>
 
           <!-- Clear All Button -->
           <div class="list-footer">

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, inject, signal } from '@angular/core';
+import { Component, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
@@ -12,7 +12,7 @@ import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { map, shareReplay, filter } from 'rxjs/operators';
 import * as AuthActions from './store/auth/auth.actions';
-import * as FavoritesActions from './store/favorites/favorites.actions';
+import { AuthService } from './core/services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -25,7 +25,7 @@ import * as FavoritesActions from './store/favorites/favorites.actions';
     MatIconModule,
     MatListModule,
     MatButtonModule,
-    MatMenuModule
+    MatMenuModule,
   ],
   templateUrl: './app.component.standalone.html',
   styleUrls: ['./app.component.standalone.scss']
@@ -36,9 +36,15 @@ export class AppComponent implements OnInit {
   private store = inject(Store);
   private breakpointObserver = inject(BreakpointObserver);
   private router = inject(Router);
-  
+  private authService = inject(AuthService);
+
   pageTitle = signal('Recipe Book');
+  isAuthRoute = signal(false);
+  isRecipesListRoute = signal(false);
   authState$ = this.store.select('auth');
+
+  /** True only when authenticated AND not on the /auth route */
+  showNav = computed(() => this.authService.isAuthenticated() && !this.isAuthRoute());
   
   isHandset$: Observable<boolean> = this.breakpointObserver.observe([Breakpoints.Handset])
     .pipe(
@@ -49,20 +55,17 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.store.dispatch(AuthActions.autoLogin());
     
-    // Load user data when logged in
-    this.authState$.subscribe(authState => {
-      if (authState.user) {
-        // Load favorites when user is authenticated
-        this.store.dispatch(FavoritesActions.loadFavorites());
-      }
-    });
-    
-    // Update page title based on route
+    // Update page title and route flags on navigation
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
+      this.isAuthRoute.set(this.router.url.includes('/auth'));
+      this.isRecipesListRoute.set(/^\/recipes(\?|$)/.test(this.router.url));
       this.updatePageTitle();
     });
+    // Set initial values synchronously
+    this.isAuthRoute.set(this.router.url.includes('/auth'));
+    this.isRecipesListRoute.set(/^\/recipes(\?|$)/.test(this.router.url));
   }
   
   private updatePageTitle() {
