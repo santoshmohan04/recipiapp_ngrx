@@ -18,9 +18,10 @@ import { ShoppingListEffects } from './store/shopping-list/shopping-list.effects
 import { FavoritesEffects } from './store/favorites/favorites.effects';
 import { CommentsEffects } from './store/comments/comments.effects';
 import { RatingsEffects } from './store/ratings/ratings.effects';
+import { HeaderComponent } from './header/header.component';
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, HeaderComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,

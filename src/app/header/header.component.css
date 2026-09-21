@@ -65,7 +65,7 @@
 }
 
 .mobile-menu-button {
-  display: none;
+  display: flex !important; /* Temporary: force show to test */
 }
 
 /* Mobile Responsive Styles */

@@ -78,18 +78,18 @@
   </button>
 
   <!-- Mobile Menu -->
-  <mat-menu #mobileMenu="matMenu" class="mobile-menu">
-    <button mat-menu-item routerLink="/recipes">
+  <mat-menu #mobileMenu="matMenu" class="mobile-menu" xPosition="before">
+    <button mat-menu-item routerLink="/recipes" [routerLinkActive]="['active-link']">
       <mat-icon>menu_book</mat-icon>
       <span>Recipes</span>
     </button>
     
-    <button mat-menu-item routerLink="/favorites">
+    <button mat-menu-item routerLink="/favorites" [routerLinkActive]="['active-link']">
       <mat-icon>favorite</mat-icon>
       <span>Favorites</span>
     </button>
 
-    <button mat-menu-item routerLink="/shopping-list">
+    <button mat-menu-item routerLink="/shopping-list" [routerLinkActive]="['active-link']">
       <mat-icon>shopping_cart</mat-icon>
       <span>Shopping List</span>
     </button>
@@ -108,7 +108,7 @@
 
     <mat-divider></mat-divider>
 
-    <button mat-menu-item routerLink="/profile">
+    <button mat-menu-item routerLink="/profile" [routerLinkActive]="['active-link']">
       <mat-icon>person</mat-icon>
       <span>My Profile</span>
     </button>

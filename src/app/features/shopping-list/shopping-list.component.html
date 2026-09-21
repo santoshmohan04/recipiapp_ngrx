@@ -80,7 +80,7 @@
             @for (ingredient of filteredIngredients(); track $index) {
               <div
                 class="ingredient-item"
-                [class.completed]="checkedItems().has($index)"
+                [class.completed]="checkedIds().has(ingredient.id)"
                 [class.editing]="editingIndex() === $index">
 
                 <!-- Completion Checkbox -->
@@ -95,10 +95,10 @@
                 <div class="ingredient-content">
                   <span
                     class="ingredient-name"
-                    [class.strikethrough]="checkedItems().has($index)">
+                    [class.strikethrough]="checkedIds().has(ingredient.id)">
                     {{ ingredient.name }}
                   </span>
-                  <span class="ingredient-amount">{{ ingredient.amount }}</span>
+                  <span class="ingredient-amount">{{ ingredient.quantity }}</span>
                 </div>
 
                 <!-- Action Buttons -->

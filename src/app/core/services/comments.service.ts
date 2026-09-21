@@ -36,30 +36,31 @@ export interface UpdateCommentDto {
 })
 export class CommentsService {
   private http = inject(HttpClient);
-  private apiUrl = `${environment.apiUrl}/comments`;
+  private apiUrl = environment.apiUrl;
 
   /**
    * Get all comments for a recipe
-   * GET /api/comments/recipe/:recipeId
+   * GET /api/recipes/:recipeId/comments
    */
   getCommentsByRecipe(recipeId: string): Observable<Comment[]> {
-    return this.http.get<Comment[]>(`${this.apiUrl}/recipe/${recipeId}`);
+    return this.http.get<Comment[]>(`${this.apiUrl}/recipes/${recipeId}/comments`);
   }
 
   /**
    * Create a new comment
-   * POST /api/comments
+   * POST /api/recipes/:recipeId/comments
    */
   createComment(dto: CreateCommentDto): Observable<Comment> {
-    return this.http.post<Comment>(this.apiUrl, dto);
+    return this.http.post<Comment>(`${this.apiUrl}/recipes/${dto.recipeId}/comments`, dto);
   }
 
   /**
    * Update a comment
    * PUT /api/comments/:id
+   * Note: This endpoint may not be implemented in the backend yet
    */
   updateComment(id: string, dto: UpdateCommentDto): Observable<Comment> {
-    return this.http.put<Comment>(`${this.apiUrl}/${id}`, dto);
+    return this.http.put<Comment>(`${this.apiUrl}/comments/${id}`, dto);
   }
 
   /**
@@ -67,6 +68,6 @@ export class CommentsService {
    * DELETE /api/comments/:id
    */
   deleteComment(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/comments/${id}`);
   }
 }

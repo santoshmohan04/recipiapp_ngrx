@@ -9,11 +9,21 @@ const appRoutes: Routes = [
       import('./recipes/recipes.module').then((x) => x.RecipesModule),
   },
   {
+    path: 'favorites',
+    loadComponent: () =>
+      import('./features/favorites/favorites.component').then((m) => m.FavoritesComponent),
+  },
+  {
     path: 'shopping-list',
     loadChildren: () =>
       import('./shopping-list/shopping-list.module').then(
         (x) => x.ShoppingListModule
       ),
+  },
+  {
+    path: 'profile',
+    loadComponent: () =>
+      import('./features/profile/profile.component').then((m) => m.ProfileComponent),
   },
   {
     path: 'auth',

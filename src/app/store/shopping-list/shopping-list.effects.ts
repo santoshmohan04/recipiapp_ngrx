@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { of } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
 import { map, catchError, switchMap, tap } from 'rxjs/operators';
 import * as ShoppingListActions from './shopping-list.actions';
 import { ShoppingListService } from '../../core/services/shopping-list.service';
@@ -33,6 +33,7 @@ export class ShoppingListEffects {
       ofType(ShoppingListActions.addIngredient),
       switchMap(({ ingredient }) =>
         this.shoppingListService.addItem(ingredient).pipe(
+          switchMap(() => this.shoppingListService.getShoppingList()),
           map(items => ShoppingListActions.addIngredientSuccess({ items })),
           catchError(error =>
             of(ShoppingListActions.addIngredientFail({ error: error.message }))
@@ -42,18 +43,31 @@ export class ShoppingListEffects {
     )
   );
 
-  // Add ingredients
+  // Add ingredients (multiple items) - backend has no batch endpoint, so POST each one then reload
   addIngredients$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ShoppingListActions.addIngredients),
-      switchMap(({ ingredients }) =>
-        this.shoppingListService.addItems(ingredients).pipe(
-          map(items => ShoppingListActions.addIngredientsSuccess({ items })),
+      switchMap(({ ingredients }) => {
+        if (ingredients.length === 0) {
+          return this.shoppingListService.getShoppingList().pipe(
+            map(items => ShoppingListActions.addIngredientsSuccess({ items, addedCount: 0 })),
+            catchError(error =>
+              of(ShoppingListActions.addIngredientsFail({ error: error.message }))
+            )
+          );
+        }
+
+        return forkJoin(ingredients.map(ingredient => this.shoppingListService.addItem(ingredient))).pipe(
+          switchMap(() =>
+            this.shoppingListService.getShoppingList().pipe(
+              map(items => ShoppingListActions.addIngredientsSuccess({ items, addedCount: ingredients.length }))
+            )
+          ),
           catchError(error =>
             of(ShoppingListActions.addIngredientsFail({ error: error.message }))
           )
-        )
-      )
+        );
+      })
     )
   );
 
@@ -61,14 +75,18 @@ export class ShoppingListEffects {
   updateIngredient$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ShoppingListActions.updateIngredient),
-      switchMap(({ id, ingredient }) =>
-        this.shoppingListService.updateItem(id, ingredient).pipe(
+      switchMap(({ id, ingredient }) => {
+        const updates = {
+          name: ingredient.name,
+          quantity: Number(ingredient.amount) || 1
+        };
+        return this.shoppingListService.updateItem(id, updates).pipe(
           map(item => ShoppingListActions.updateIngredientSuccess({ item })),
           catchError(error =>
             of(ShoppingListActions.updateIngredientFail({ error: error.message }))
           )
-        )
-      )
+        );
+      })
     )
   );
 
@@ -118,8 +136,10 @@ export class ShoppingListEffects {
     () =>
       this.actions$.pipe(
         ofType(ShoppingListActions.addIngredientsSuccess),
-        tap(({ items }) => {
-          this.notificationService.showSuccess(`${items.length} ingredients added to shopping list!`);
+        tap(({ addedCount }) => {
+          if (addedCount > 0) {
+            this.notificationService.showSuccess(`${addedCount} ingredient${addedCount !== 1 ? 's' : ''} added to shopping list!`);
+          }
         })
       ),
     { dispatch: false }

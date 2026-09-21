@@ -78,11 +78,11 @@ export const selectGroupedIngredients = createSelector(
         existing.count += 1;
         existing.ids.push(item.id);
         // Simple aggregation - just concatenate amounts
-        existing.totalAmount = `${existing.totalAmount}, ${item.amount}`;
+        existing.totalAmount = `${existing.totalAmount}, ${item.quantity ?? ''}`;
       } else {
         grouped.set(key, {
           name: item.name,
-          totalAmount: String(item.amount),
+          totalAmount: String(item.quantity ?? ''),
           count: 1,
           ids: [item.id]
         });

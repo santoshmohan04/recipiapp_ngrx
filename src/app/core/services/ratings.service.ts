@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
 /**
@@ -33,50 +34,78 @@ export interface RecipeRatingStats {
   totalRatings: number;
 }
 
+/**
+ * Response from GET /recipes/:id/ratings
+ */
+export interface RecipeRatingsResponse {
+  averageRating: number;
+  totalRatings: number;
+  ratings: Rating[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class RatingsService {
   private http = inject(HttpClient);
-  private apiUrl = `${environment.apiUrl}/ratings`;
+  private apiUrl = environment.apiUrl;
 
   /**
-   * Get all ratings for a recipe
-   * GET /api/ratings/recipe/:recipeId
+   * Get all ratings for a recipe (includes stats and all ratings)
+   * GET /api/recipes/:recipeId/ratings
+   * Returns averageRating, totalRatings, and ratings array
    */
-  getRatingsByRecipe(recipeId: string): Observable<Rating[]> {
-    return this.http.get<Rating[]>(`${this.apiUrl}/recipe/${recipeId}`);
+  getRatingsByRecipe(recipeId: string): Observable<RecipeRatingsResponse> {
+    return this.http.get<RecipeRatingsResponse>(`${this.apiUrl}/recipes/${recipeId}/ratings`);
   }
 
   /**
    * Get rating statistics for a recipe
-   * GET /api/ratings/recipe/:recipeId/stats
+   * Calls getRatingsByRecipe and extracts stats
+   * GET /api/recipes/:recipeId/ratings
    */
   getRecipeRatingStats(recipeId: string): Observable<RecipeRatingStats> {
-    return this.http.get<RecipeRatingStats>(`${this.apiUrl}/recipe/${recipeId}/stats`);
+    return this.getRatingsByRecipe(recipeId).pipe(
+      map(response => ({
+        recipeId,
+        averageRating: response.averageRating,
+        totalRatings: response.totalRatings
+      }))
+    );
   }
 
   /**
    * Get the current user's rating for a recipe
-   * GET /api/ratings/recipe/:recipeId/user
+   * Note: This requires getting all ratings and filtering client-side
+   * since the backend doesn't have a dedicated user rating endpoint
+   * GET /api/recipes/:recipeId/ratings
    */
   getUserRating(recipeId: string): Observable<Rating | null> {
-    return this.http.get<Rating | null>(`${this.apiUrl}/recipe/${recipeId}/user`);
+    // For now, return null since we'd need the Auth service to get current userId
+    // This should be handled at the component/effects level where auth context is available
+    return this.getRatingsByRecipe(recipeId).pipe(
+      map(response => {
+        // TODO: Filter ratings array by current user's ID when auth context is available
+        // For now, returning null - this needs auth integration
+        return null;
+      })
+    );
   }
 
   /**
    * Create or update a rating
-   * POST /api/ratings
+   * POST /api/recipes/:recipeId/rate
    */
   createOrUpdateRating(dto: CreateRatingDto): Observable<Rating> {
-    return this.http.post<Rating>(this.apiUrl, dto);
+    return this.http.post<Rating>(`${this.apiUrl}/recipes/${dto.recipeId}/rate`, dto);
   }
 
   /**
    * Delete a rating
-   * DELETE /api/ratings/:id
+   * Note: This endpoint may not be implemented in the backend
    */
-  deleteRating(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  deleteRating(recipeId: string): Observable<void> {
+    // Backend might not have this endpoint
+    return this.http.delete<void>(`${this.apiUrl}/ratings/${recipeId}`);
   }
 }
