@@ -39,7 +39,7 @@ export const addIngredients = createAction(
 
 export const addIngredientsSuccess = createAction(
   '[Shopping List API] Add Ingredients Success',
-  props<{ items: ShoppingListItem[] }>()
+  props<{ items: ShoppingListItem[]; addedCount: number }>()
 );
 
 export const addIngredientsFail = createAction(

@@ -98,7 +98,7 @@ export class ShoppingListComponent implements OnInit {
     const search = this.searchTerm().toLowerCase().trim();
     if (search) {
       ingredients = ingredients.filter(ing => 
-        ing.itemName.toLowerCase().includes(search)
+        ing.name.toLowerCase().includes(search)
       );
     }
     
@@ -227,7 +227,7 @@ export class ShoppingListComponent implements OnInit {
   onDeleteItem(event: Event, id: string) {
     event.stopPropagation();
     const ingredient = this.allIngredients().find(item => item.id === id);
-    const ingredientName = ingredient?.itemName || 'Item';
+    const ingredientName = ingredient?.name || 'Item';
     
     this.store.dispatch(ShoppingListActions.deleteIngredient({ id }));
     

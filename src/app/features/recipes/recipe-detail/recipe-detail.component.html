@@ -320,4 +320,24 @@
       </mat-card-content>
     </mat-card>
   }
+
+  <!-- Delete Confirmation Overlay -->
+  @if (showDeleteConfirm()) {
+    <div class="confirm-overlay" (click)="cancelDelete()">
+      <mat-card class="confirm-dialog" (click)="$event.stopPropagation()">
+        <mat-card-header>
+          <mat-card-title>Delete Recipe</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Are you sure you want to delete this recipe? This action cannot be undone.</p>
+        </mat-card-content>
+        <mat-card-actions align="end">
+          <button mat-button (click)="cancelDelete()" [disabled]="isDeleting()">Cancel</button>
+          <button mat-raised-button color="warn" (click)="confirmDelete()" [disabled]="isDeleting()">
+            {{ isDeleting() ? 'Deleting...' : 'Delete' }}
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  }
 </div>

@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { of } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
 import { map, catchError, switchMap, tap } from 'rxjs/operators';
 import * as ShoppingListActions from './shopping-list.actions';
 import { ShoppingListService } from '../../core/services/shopping-list.service';
@@ -43,15 +43,26 @@ export class ShoppingListEffects {
     )
   );
 
-  // Add ingredients (multiple items)
+  // Add ingredients (multiple items) - backend has no batch endpoint, so POST each one then reload
   addIngredients$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ShoppingListActions.addIngredients),
       switchMap(({ ingredients }) => {
-        // Since backend doesn't support batch creation, reload list after attempting to add
-        // The service.addItems() method is a placeholder - ideally handle at component level
-        return this.shoppingListService.getShoppingList().pipe(
-          map(items => ShoppingListActions.addIngredientsSuccess({ items })),
+        if (ingredients.length === 0) {
+          return this.shoppingListService.getShoppingList().pipe(
+            map(items => ShoppingListActions.addIngredientsSuccess({ items, addedCount: 0 })),
+            catchError(error =>
+              of(ShoppingListActions.addIngredientsFail({ error: error.message }))
+            )
+          );
+        }
+
+        return forkJoin(ingredients.map(ingredient => this.shoppingListService.addItem(ingredient))).pipe(
+          switchMap(() =>
+            this.shoppingListService.getShoppingList().pipe(
+              map(items => ShoppingListActions.addIngredientsSuccess({ items, addedCount: ingredients.length }))
+            )
+          ),
           catchError(error =>
             of(ShoppingListActions.addIngredientsFail({ error: error.message }))
           )
@@ -66,8 +77,8 @@ export class ShoppingListEffects {
       ofType(ShoppingListActions.updateIngredient),
       switchMap(({ id, ingredient }) => {
         const updates = {
-          itemName: ingredient.name,
-          quantity: ingredient.amount?.toString()
+          name: ingredient.name,
+          quantity: Number(ingredient.amount) || 1
         };
         return this.shoppingListService.updateItem(id, updates).pipe(
           map(item => ShoppingListActions.updateIngredientSuccess({ item })),
@@ -125,8 +136,10 @@ export class ShoppingListEffects {
     () =>
       this.actions$.pipe(
         ofType(ShoppingListActions.addIngredientsSuccess),
-        tap(({ items }) => {
-          this.notificationService.showSuccess(`${items.length} ingredients added to shopping list!`);
+        tap(({ addedCount }) => {
+          if (addedCount > 0) {
+            this.notificationService.showSuccess(`${addedCount} ingredient${addedCount !== 1 ? 's' : ''} added to shopping list!`);
+          }
         })
       ),
     { dispatch: false }

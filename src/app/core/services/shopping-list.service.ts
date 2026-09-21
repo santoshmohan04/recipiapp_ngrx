@@ -7,10 +7,10 @@ import { environment } from '../../../environments/environment';
 
 export interface ShoppingListItem {
   id: string;
-  itemName: string;
-  quantity?: string;
-  category?: string;
-  isChecked?: boolean;
+  name: string;
+  quantity: number;
+  unit: string;
+  checked?: boolean;
   userId: string;
   createdAt?: string;
   updatedAt?: string;
@@ -67,9 +67,9 @@ export class ShoppingListService {
    */
   addItem(item: Ingredient): Observable<ShoppingListItem> {
     const payload = {
-      itemName: item.name,
-      quantity: item.amount?.toString(),
-      category: '' // Could be extracted from ingredient if available
+      name: item.name,
+      quantity: Number(item.amount) || 1,
+      unit: 'unit'
     };
     
     return this.http.post<ShoppingListItem>(this.apiUrl, payload).pipe(
@@ -79,13 +79,13 @@ export class ShoppingListService {
 
   /**
    * Update shopping list item
-   * PATCH /api/shopping-list/:id
+   * PUT /api/shopping-list/:id
    * @param id - Item ID
    * @param updates - Partial updates to the item
    * @returns Observable<ShoppingListItem>
    */
-  updateItem(id: string, updates: Partial<{ itemName: string; quantity: string; category: string; isChecked: boolean }>): Observable<ShoppingListItem> {
-    return this.http.patch<ShoppingListItem>(`${this.apiUrl}/${id}`, updates).pipe(
+  updateItem(id: string, updates: Partial<{ name: string; quantity: number; unit: string; checked: boolean }>): Observable<ShoppingListItem> {
+    return this.http.put<ShoppingListItem>(`${this.apiUrl}/${id}`, updates).pipe(
       catchError(this.handleError)
     );
   }

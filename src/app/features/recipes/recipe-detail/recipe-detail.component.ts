@@ -216,11 +216,6 @@ export class RecipeDetailComponent implements OnInit, OnDestroy {
         })
       );
       
-      const count = recipe.ingredients.length;
-      this.notificationService.showSuccess(
-        `${count} ingredient${count !== 1 ? 's' : ''} added to shopping list!`
-      );
-      
       this.isAddingToCart.set(false);
     }
   }

@@ -1,5 +1,5 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -99,6 +99,7 @@ export class AuthComponent {
 
   isLoginMode = signal(true);
   hidePassword = signal(true);
+  hideConfirmPassword = signal(true);
 
   /** Sliced signals from the NgRx store via typed selectors. */
   isLoading = toSignal(this.store.select(selectAuthLoading), { initialValue: false });
@@ -158,7 +159,7 @@ export class AuthComponent {
   }
 
   onSubmit() {
-    if (this.authForm.invalid) return;
+    if (this.authForm.invalid || this.isLoading()) return;
 
     const { email, password, firstName, lastName } = this.authForm.value;
 

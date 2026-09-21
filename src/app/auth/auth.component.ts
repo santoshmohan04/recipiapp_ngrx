@@ -70,7 +70,7 @@ export class AuthComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
-    if (this.authForm.invalid) return;
+    if (this.authForm.invalid || this.isLoading) return;
     const { firstName, lastName, email, password, rememberMe } = this.authForm.value;
 
     if (rememberMe) {
